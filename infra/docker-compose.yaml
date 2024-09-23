@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: mysql-container
+    restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "23306:3306"
+    environment:
+      - MYSQL_USER=test_user
+      - MYSQL_USER_PASSWORD=test1234
+      - MYSQL_DATABASE=test_db
+      - MYSQL_ROOT_PASSWORD=1234
+      - TZ=Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+09:00
+      - --max-connections=250
+    volumes:
+      - ./db/mysql/data:/var/lib/mysql # local-dir:container-dir
