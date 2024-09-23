@@ -2,8 +2,8 @@ FROM mysql:latest
 
 LABEL authors="akasai"
 
-# change cli char-set
-RUN echo "[client]\ndefault-character-set=utf8mb4\n" >> /etc/mysql/my.cnt
+# copy cli char-set
+COPY my.cnf /etc/mysql/
 
 # dump file copy
 COPY migrations.sql /sql/
