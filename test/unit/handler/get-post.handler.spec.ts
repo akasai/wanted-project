@@ -48,17 +48,19 @@ describe('GetPostHandler', () => {
 
       // then
       expect(service.getPostById).toHaveBeenCalled()
-      expect(result).toEqual(expect.objectContaining({
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author: '작성자',
-      }))
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 1,
+          title: '제목',
+          content: '내용',
+          author: '작성자',
+        }),
+      )
     })
 
     it('존재하지 않는 게시물은 에러를 반환한다.', async () => {
       // given
-      service.getPostById = jest.fn().mockRejectedValue(new NotFoundException)
+      service.getPostById = jest.fn().mockRejectedValue(new NotFoundException())
       const query = new GetPostQuery(99999)
 
       // when

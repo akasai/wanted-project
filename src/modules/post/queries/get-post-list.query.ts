@@ -7,6 +7,5 @@ export class GetPostListQuery implements IQuery {
     readonly searchType?: SearchType,
     readonly keyword?: string,
     readonly order?: 'asc' | 'desc',
-  ) {
-  }
+  ) {}
 }

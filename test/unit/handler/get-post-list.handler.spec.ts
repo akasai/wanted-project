@@ -48,12 +48,14 @@ describe('GetPostListHandler', () => {
       // then
       expect(service.getPostList).toHaveBeenCalled()
       result.forEach((post) => {
-        expect(post).toEqual(expect.objectContaining({
-          id: 1,
-          title: '제목',
-          content: '내용',
-          author: '작성자',
-        }))
+        expect(post).toEqual(
+          expect.objectContaining({
+            id: 1,
+            title: '제목',
+            content: '내용',
+            author: '작성자',
+          }),
+        )
       })
     })
   })

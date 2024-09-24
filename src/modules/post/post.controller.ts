@@ -1,25 +1,34 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
-import { CreatePostCommand } from './commands/create-post.command'
-import { CreatePostDto } from './dto'
-import { GetPostListDto } from './dto/get-post-list.dto'
-import { PostModel, SimplePostModel } from './models/post'
-import { GetPostListQuery } from './queries/get-post-list.query'
-import { GetPostQuery } from './queries/get-post.query'
+import { CreatePostCommand, EditPostCommand } from './commands'
+import { CreatePostDto, EditPostDto, GetPostListDto } from './dto'
+import { EditPostModel, PostModel, SimplePostModel } from './models/post'
+import { GetPostListQuery, GetPostQuery } from './queries'
 
 @Controller('posts')
 export class PostController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {
-  }
+  ) {}
 
   @Get()
-  async getPostList(@Query() query: GetPostListDto) {
+  async getPostList(
+    @Query() query: GetPostListDto,
+  ): Promise<SimplePostModel[]> {
     const { page, search_type, keyword, order } = query
-    const list: SimplePostModel[] = await this.queryBus.execute(new GetPostListQuery(page, search_type, keyword, order))
-    return list
+    return await this.queryBus.execute(
+      new GetPostListQuery(page, search_type, keyword, order),
+    )
   }
 
   @Post()
@@ -32,8 +41,18 @@ export class PostController {
   }
 
   @Get('/:id(\\d+)')
-  async getPost(@Param('id', ParseIntPipe) id: number) {
-    const post: PostModel = await this.queryBus.execute(new GetPostQuery(id))
-    return post
+  async getPost(@Param('id', ParseIntPipe) id: number): Promise<PostModel> {
+    return await this.queryBus.execute(new GetPostQuery(id))
+  }
+
+  @Patch('/:id(\\d+)')
+  async editPost(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: EditPostDto,
+  ): Promise<EditPostModel> {
+    const { author, password, title, content } = body
+    return await this.commandBus.execute(
+      new EditPostCommand(id, author, password, title, content),
+    )
   }
 }

@@ -1,7 +1,13 @@
+export type SearchType = 'title' | 'author'
 export interface SearchFilter {
   title?: string
   author?: string
   order?: 'asc' | 'desc'
+}
+
+export interface EditPostObject {
+  title: string
+  content: string
 }
 
 export interface PostModel {
@@ -13,7 +19,10 @@ export interface PostModel {
   updated_at: Date
 }
 
-export interface SimplePostModel extends PostModel {
-}
+export interface SimplePostModel extends PostModel {}
 
-export type SearchType = 'title' | 'author'
+export interface EditPostModel {
+  title?: string
+  content?: string
+  updated_at: Date
+}

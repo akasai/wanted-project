@@ -5,8 +5,7 @@ import { GetPostQuery } from '../queries/get-post.query'
 
 @QueryHandler(GetPostQuery)
 export class GetPostHandler implements IQueryHandler<GetPostQuery> {
-  constructor(private readonly postService: PostService) {
-  }
+  constructor(private readonly postService: PostService) {}
 
   async execute(query: GetPostQuery): Promise<PostModel> {
     const { id } = query

@@ -1,24 +1,18 @@
-import * as crypto from 'crypto'
 import { Crypto } from '../../../src/utils/crypto'
+import { BCRYPT_PATTERN } from '../../lib/constants'
 
 describe('Crypto', () => {
   const plainPassword: string = 'password'
-  const base64Pattern = /^[-A-Za-z0-9+/]*={0,3}$/
+  it('plainToSHA256', async () => {
+    const encrypted: string = await Crypto.plainToHash(plainPassword)
 
-  it('plainToSHA256', () => {
-    const encrypted: string = Crypto.plainToSHA256(plainPassword)
-    const expected = crypto
-      .createHash('sha256')
-      .update(plainPassword)
-      .digest('base64')
-
-    expect(encrypted).toEqual(expected)
-    expect(base64Pattern.test(expected)).toBe(true)
+    expect(encrypted).toBeDefined() // 해싱된 값이 존재하는지 확인
+    expect(BCRYPT_PATTERN.test(encrypted)).toBe(true)
   })
 
-  it('isMatchedEncrypted', () => {
-    const encrypted: string = Crypto.plainToSHA256(plainPassword)
-    const result = Crypto.isMatchedEncrypted(plainPassword, encrypted)
+  it('isMatchedEncrypted', async () => {
+    const encrypted: string = await Crypto.plainToHash(plainPassword)
+    const result = await Crypto.isMatchedEncrypted(plainPassword, encrypted)
     expect(result).toBe(true)
   })
 })

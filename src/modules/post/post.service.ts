@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { post as Post } from '@prisma/client'
 import { POST_STATUS } from '../../common/enums'
 import { PrismaService } from '../../common/prisma/prisma.service'
@@ -7,8 +11,7 @@ import { SearchFilter } from './models/post'
 
 @Injectable()
 export class PostService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createPost(
     title: string,
@@ -24,7 +27,7 @@ export class PostService {
         title,
         content,
         author_name: author,
-        password_hash: Crypto.plainToSHA256(password),
+        password_hash: await Crypto.plainToHash(password),
       },
     })
   }
@@ -62,5 +65,40 @@ export class PostService {
     })
 
     return postList
+  }
+
+  async updatePost(
+    id: number,
+    author: string,
+    password: string,
+    editValue: Partial<Post>,
+  ): Promise<Post> {
+    if (Object.values(editValue).every((v) => !v)) {
+      throw new BadRequestException('잘못된 요청입니다.')
+    }
+
+    const post = await this.prisma.post.findUnique({
+      where: { id: id, author_name: author },
+    })
+    if (!post) {
+      throw new NotFoundException('게시글이 존재하지 않습니다.')
+    }
+    if (!(await Crypto.isMatchedEncrypted(password, post.password_hash))) {
+      throw new BadRequestException('비밀번호가 틀렸습니다.')
+    }
+
+    const data: Partial<Post> = Object.entries(editValue).reduce(
+      (obj, [key, val]) => {
+        if (val) obj[key] = val
+        return obj
+      },
+      { updated_at: new Date() },
+    )
+
+    const updated = await this.prisma.post.update({
+      where: { id, author_name: author },
+      data,
+    })
+    return updated
   }
 }

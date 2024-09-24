@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer'
-import { IsIn, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator'
+import {
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator'
 import { SearchType } from '../models/post'
 
 export class GetPostListDto {

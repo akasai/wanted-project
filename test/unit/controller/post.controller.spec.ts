@@ -1,7 +1,8 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
-import { CreatePostDto } from '../../../src/modules/post/dto'
+import { EditPostCommand } from '../../../src/modules/post/commands/edit-post.command'
+import { CreatePostDto, EditPostDto } from '../../../src/modules/post/dto'
 import { SearchType } from '../../../src/modules/post/models/post'
 import { PostController } from '../../../src/modules/post/post.controller'
 import { GetPostListQuery } from '../../../src/modules/post/queries/get-post-list.query'
@@ -77,25 +78,29 @@ describe('PostController', () => {
       const result = await controller.getPost(1)
 
       expect(queryBus.execute).toHaveBeenCalledWith(new GetPostQuery(1))
-      expect(result).toEqual(expect.objectContaining({
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        updated_at: null,
-      }))
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 1,
+          title: '제목',
+          content: '내용',
+          author_name: '작성자',
+          updated_at: null,
+        }),
+      )
     })
 
     it('게시글 목록 조회 요청이 오면 queryBus.execute 실행된다.', async () => {
       const query = { page: 1 }
-      queryBus.execute = jest.fn().mockResolvedValue([{
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        created_at: new Date(),
-        updated_at: null,
-      }])
+      queryBus.execute = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          title: '제목',
+          content: '내용',
+          author_name: '작성자',
+          created_at: new Date(),
+          updated_at: null,
+        },
+      ])
 
       const result = await controller.getPostList(query)
 
@@ -104,37 +109,118 @@ describe('PostController', () => {
     })
 
     it('게시글 목록 검색 조회 요청이 오면 queryBus.execute 실행된다.', async () => {
-      const query = { page: 1, search_type: 'title' as SearchType, keyword: '내용' }
-      queryBus.execute = jest.fn().mockResolvedValue([{
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        created_at: new Date(),
-        updated_at: null,
-      }])
+      const query = {
+        page: 1,
+        search_type: 'title' as SearchType,
+        keyword: '내용',
+      }
+      queryBus.execute = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          title: '제목',
+          content: '내용',
+          author_name: '작성자',
+          created_at: new Date(),
+          updated_at: null,
+        },
+      ])
 
       const result = await controller.getPostList(query)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, 'title', '내용'))
+      expect(queryBus.execute).toHaveBeenCalledWith(
+        new GetPostListQuery(1, 'title', '내용'),
+      )
       expect(result.length).toBe(1)
     })
 
     it('게시글 목록 오름차순 조회 요청이 오면 queryBus.execute 실행된다.', async () => {
       const query = { page: 1, order: 'asc' as 'asc' | 'desc' }
-      queryBus.execute = jest.fn().mockResolvedValue([{
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        created_at: new Date(),
-        updated_at: null,
-      }])
+      queryBus.execute = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          title: '제목',
+          content: '내용',
+          author_name: '작성자',
+          created_at: new Date(),
+          updated_at: null,
+        },
+      ])
 
       const result = await controller.getPostList(query)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, undefined, undefined, 'asc'))
+      expect(queryBus.execute).toHaveBeenCalledWith(
+        new GetPostListQuery(1, undefined, undefined, 'asc'),
+      )
       expect(result.length).toBe(1)
+    })
+
+    it('게시글 제목 수정 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: EditPostDto = {
+        title: '변경 제목',
+        author: '작성자',
+        password: '1234',
+      }
+      commandBus.execute = jest
+        .fn()
+        .mockResolvedValue({ title: '변경 제목', updated_at: new Date() })
+
+      const result = await controller.editPost(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new EditPostCommand(1, '작성자', '1234', '변경 제목'),
+      )
+      expect(result).toEqual({
+        title: '변경 제목',
+        updated_at: expect.any(Date),
+      })
+    })
+
+    it('게시글 내용 수정 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: EditPostDto = {
+        content: '변경 내용',
+        author: '작성자',
+        password: '1234',
+      }
+      commandBus.execute = jest
+        .fn()
+        .mockResolvedValue({ content: '변경 내용', updated_at: new Date() })
+
+      const result = await controller.editPost(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new EditPostCommand(1, '작성자', '1234', undefined, '변경 내용'),
+      )
+      expect(result).toEqual({
+        content: '변경 내용',
+        updated_at: expect.any(Date),
+      })
+    })
+
+    it('게시글 수정 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: EditPostDto = {
+        title: '변경 제목',
+        content: '변경 내용',
+        author: '작성자',
+        password: '1234',
+      }
+      commandBus.execute = jest
+        .fn()
+        .mockResolvedValue({
+          title: '변경 제목',
+          content: '변경 내용',
+          updated_at: new Date(),
+        })
+
+      const result = await controller.editPost(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new EditPostCommand(1, '작성자', '1234', '변경 제목', '변경 내용'),
+      )
+      expect(result).toEqual({
+        title: '변경 제목',
+        content: '변경 내용',
+        updated_at: expect.any(Date),
+      })
     })
   })
 })

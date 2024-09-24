@@ -5,8 +5,7 @@ import { GetPostListQuery } from '../queries/get-post-list.query'
 
 @QueryHandler(GetPostListQuery)
 export class GetPostListHandler implements IQueryHandler<GetPostListQuery> {
-  constructor(private readonly postService: PostService) {
-  }
+  constructor(private readonly postService: PostService) {}
 
   async execute(query: GetPostListQuery): Promise<SimplePostModel[]> {
     const { page, searchType, keyword, order } = query
