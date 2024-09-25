@@ -56,13 +56,7 @@ describe('EditPostHandler', () => {
     it('[content] EditPostCommand 가 주어지면 게시글이 정상적으로 생성된다.', async () => {
       // given
       service.updatePost = jest.fn().mockResolvedValue(post)
-      const command = new EditPostCommand(
-        1,
-        '작성자',
-        'password',
-        undefined,
-        '변경 내용',
-      )
+      const command = new EditPostCommand(1, '작성자', 'password', undefined, '변경 내용')
 
       // when
       const result = await handler.execute(command)
@@ -78,13 +72,7 @@ describe('EditPostHandler', () => {
     it('[All] EditPostCommand 가 주어지면 게시글이 정상적으로 생성된다.', async () => {
       // given
       service.updatePost = jest.fn().mockResolvedValue(post)
-      const command = new EditPostCommand(
-        1,
-        '작성자',
-        'password',
-        '변경 제목',
-        '변경 내용',
-      )
+      const command = new EditPostCommand(1, '작성자', 'password', '변경 제목', '변경 내용')
       // when
       const result = await handler.execute(command)
 

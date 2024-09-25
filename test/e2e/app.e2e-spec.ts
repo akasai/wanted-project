@@ -3,10 +3,8 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../../src/app.module'
-import {
-  CreatePostCommand,
-  EditPostCommand,
-} from '../../src/modules/post/commands'
+import { POST_STATUS } from '../../src/common/enums'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../src/modules/post/commands'
 import { GetPostListDto } from '../../src/modules/post/dto'
 import { GetPostListQuery, GetPostQuery } from '../../src/modules/post/queries'
 
@@ -61,9 +59,7 @@ describe('AppController (e2e)', () => {
         })
         .expect(201)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreatePostCommand('제목', '내용', '작성자', '1234'),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreatePostCommand('제목', '내용', '작성자', '1234'))
       expect(response.body).toEqual({ id: 1 })
     })
 
@@ -78,9 +74,7 @@ describe('AppController (e2e)', () => {
         updated_at: null,
       })
 
-      const response = await request(app.getHttpServer())
-        .get('/posts/1')
-        .expect(200)
+      const response = await request(app.getHttpServer()).get('/posts/1').expect(200)
 
       expect(queryBus.execute).toHaveBeenCalledWith(new GetPostQuery(1))
       expect(response.body).toEqual(
@@ -108,10 +102,7 @@ describe('AppController (e2e)', () => {
         },
       ])
 
-      const response = await request(app.getHttpServer())
-        .get('/posts')
-        .query(query)
-        .expect(200)
+      const response = await request(app.getHttpServer()).get('/posts').query(query).expect(200)
 
       expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1))
       expect(response.body.length).toBe(1)
@@ -136,14 +127,9 @@ describe('AppController (e2e)', () => {
         },
       ])
 
-      const response = await request(app.getHttpServer())
-        .get('/posts')
-        .query(query)
-        .expect(200)
+      const response = await request(app.getHttpServer()).get('/posts').query(query).expect(200)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new GetPostListQuery(1, 'title', '내용'),
-      )
+      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, 'title', '내용'))
       expect(response.body.length).toBe(1)
     })
 
@@ -166,31 +152,22 @@ describe('AppController (e2e)', () => {
         },
       ])
 
-      const response = await request(app.getHttpServer())
-        .get('/posts')
-        .query(query)
-        .expect(200)
+      const response = await request(app.getHttpServer()).get('/posts').query(query).expect(200)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new GetPostListQuery(1, 'author', '작성자'),
-      )
+      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, 'author', '작성자'))
       expect(response.body.length).toBe(1)
     })
 
     it('게시물 수정; 제목', async () => {
       // QueryBus의 execute 메서드 모킹
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({ title: '변경 제목', updated_at: new Date() })
+      commandBus.execute = jest.fn().mockResolvedValue({ title: '변경 제목', updated_at: new Date() })
 
       const response = await request(app.getHttpServer())
         .patch('/posts/1')
         .send({ title: '변경 제목', author: '작성자', password: '1234' })
         .expect(200)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new EditPostCommand(1, '작성자', '1234', '변경 제목'),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new EditPostCommand(1, '작성자', '1234', '변경 제목'))
       expect(response.body).toEqual({
         title: '변경 제목',
         updated_at: expect.any(String),
@@ -199,18 +176,14 @@ describe('AppController (e2e)', () => {
 
     it('게시물 수정; 내용', async () => {
       // QueryBus의 execute 메서드 모킹
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({ content: '변경 내용', updated_at: new Date() })
+      commandBus.execute = jest.fn().mockResolvedValue({ content: '변경 내용', updated_at: new Date() })
 
       const response = await request(app.getHttpServer())
         .patch('/posts/1')
         .send({ content: '변경 내용', author: '작성자', password: '1234' })
         .expect(200)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new EditPostCommand(1, '작성자', '1234', undefined, '변경 내용'),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new EditPostCommand(1, '작성자', '1234', undefined, '변경 내용'))
       expect(response.body).toEqual({
         content: '변경 내용',
         updated_at: expect.any(String),
@@ -219,13 +192,11 @@ describe('AppController (e2e)', () => {
 
     it('게시물 수정; 제목, 내용', async () => {
       // QueryBus의 execute 메서드 모킹
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({
-          title: '변경 제목',
-          content: '변경 내용',
-          updated_at: new Date(),
-        })
+      commandBus.execute = jest.fn().mockResolvedValue({
+        title: '변경 제목',
+        content: '변경 내용',
+        updated_at: new Date(),
+      })
 
       const response = await request(app.getHttpServer())
         .patch('/posts/1')
@@ -245,6 +216,19 @@ describe('AppController (e2e)', () => {
         content: '변경 내용',
         updated_at: expect.any(String),
       })
+    })
+
+    it('게시물 삭제', async () => {
+      // QueryBus의 execute 메서드 모킹
+      commandBus.execute = jest.fn().mockResolvedValue({
+        id: 1,
+        status: POST_STATUS.DELETED,
+        updated_at: new Date(),
+      })
+
+      await request(app.getHttpServer()).delete('/posts/1').send({ author: '작성자', password: '1234' }).expect(204)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new DeletePostCommand(1, '작성자', '1234'))
     })
   })
 })

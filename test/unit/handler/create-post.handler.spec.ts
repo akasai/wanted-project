@@ -40,12 +40,7 @@ describe('CreatePostHandler', () => {
     it('CreatePostCommand가 주어지면 게시글이 정상적으로 생성된다.', async () => {
       // given
       service.createPost = jest.fn().mockResolvedValue(createdPost)
-      const command = new CreatePostCommand(
-        '제목',
-        '내용',
-        '작성자',
-        'password',
-      )
+      const command = new CreatePostCommand('제목', '내용', '작성자', 'password')
 
       // when
       const result = await handler.execute(command)

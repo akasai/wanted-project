@@ -1,8 +1,10 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
+import { POST_STATUS } from '../../../src/common/enums'
+import { DeletePostCommand } from '../../../src/modules/post/commands'
 import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
 import { EditPostCommand } from '../../../src/modules/post/commands/edit-post.command'
-import { CreatePostDto, EditPostDto } from '../../../src/modules/post/dto'
+import { CreatePostDto, DeletePostDto, EditPostDto } from '../../../src/modules/post/dto'
 import { SearchType } from '../../../src/modules/post/models/post'
 import { PostController } from '../../../src/modules/post/post.controller'
 import { GetPostListQuery } from '../../../src/modules/post/queries/get-post-list.query'
@@ -55,12 +57,7 @@ describe('PostController', () => {
       const result = await controller.createPost(body)
 
       expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreatePostCommand(
-          body.title,
-          body.content,
-          body.author,
-          body.password,
-        ),
+        new CreatePostCommand(body.title, body.content, body.author, body.password),
       )
       expect(result).toEqual({ id: 1 })
     })
@@ -127,9 +124,7 @@ describe('PostController', () => {
 
       const result = await controller.getPostList(query)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new GetPostListQuery(1, 'title', '내용'),
-      )
+      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, 'title', '내용'))
       expect(result.length).toBe(1)
     })
 
@@ -148,9 +143,7 @@ describe('PostController', () => {
 
       const result = await controller.getPostList(query)
 
-      expect(queryBus.execute).toHaveBeenCalledWith(
-        new GetPostListQuery(1, undefined, undefined, 'asc'),
-      )
+      expect(queryBus.execute).toHaveBeenCalledWith(new GetPostListQuery(1, undefined, undefined, 'asc'))
       expect(result.length).toBe(1)
     })
 
@@ -160,15 +153,11 @@ describe('PostController', () => {
         author: '작성자',
         password: '1234',
       }
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({ title: '변경 제목', updated_at: new Date() })
+      commandBus.execute = jest.fn().mockResolvedValue({ title: '변경 제목', updated_at: new Date() })
 
       const result = await controller.editPost(1, body)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new EditPostCommand(1, '작성자', '1234', '변경 제목'),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new EditPostCommand(1, '작성자', '1234', '변경 제목'))
       expect(result).toEqual({
         title: '변경 제목',
         updated_at: expect.any(Date),
@@ -181,15 +170,11 @@ describe('PostController', () => {
         author: '작성자',
         password: '1234',
       }
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({ content: '변경 내용', updated_at: new Date() })
+      commandBus.execute = jest.fn().mockResolvedValue({ content: '변경 내용', updated_at: new Date() })
 
       const result = await controller.editPost(1, body)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new EditPostCommand(1, '작성자', '1234', undefined, '변경 내용'),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new EditPostCommand(1, '작성자', '1234', undefined, '변경 내용'))
       expect(result).toEqual({
         content: '변경 내용',
         updated_at: expect.any(Date),
@@ -203,13 +188,11 @@ describe('PostController', () => {
         author: '작성자',
         password: '1234',
       }
-      commandBus.execute = jest
-        .fn()
-        .mockResolvedValue({
-          title: '변경 제목',
-          content: '변경 내용',
-          updated_at: new Date(),
-        })
+      commandBus.execute = jest.fn().mockResolvedValue({
+        title: '변경 제목',
+        content: '변경 내용',
+        updated_at: new Date(),
+      })
 
       const result = await controller.editPost(1, body)
 
@@ -221,6 +204,23 @@ describe('PostController', () => {
         content: '변경 내용',
         updated_at: expect.any(Date),
       })
+    })
+
+    it('게시글 삭제 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: DeletePostDto = {
+        author: '작성자',
+        password: '1234',
+      }
+      commandBus.execute = jest.fn().mockResolvedValue({
+        id: 1,
+        status: POST_STATUS.DELETED,
+        updated_at: new Date(),
+      })
+
+      const result = await controller.deletePost(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new DeletePostCommand(1, '작성자', '1234'))
+      expect(result).toBeUndefined() // return void
     })
   })
 })

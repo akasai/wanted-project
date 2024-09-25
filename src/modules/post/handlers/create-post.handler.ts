@@ -10,12 +10,7 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
 
   async execute(command: CreatePostCommand): Promise<number> {
     const { title, content, author, password } = command
-    const { id } = await this.postService.createPost(
-      title,
-      content,
-      author,
-      password,
-    )
+    const { id } = await this.postService.createPost(title, content, author, password)
     return id
   }
 }

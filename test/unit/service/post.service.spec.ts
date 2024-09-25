@@ -53,12 +53,7 @@ describe('PostService', () => {
         prismaService.post.create = jest.fn().mockResolvedValue(createdPost)
 
         // when
-        const result = await service.createPost(
-          '제목',
-          '내용',
-          '작성자',
-          'password',
-        )
+        const result = await service.createPost('제목', '내용', '작성자', 'password')
 
         // then
         expect(prismaService.post.create).toHaveBeenCalledWith(
@@ -157,9 +152,7 @@ describe('PostService', () => {
 
       it('2. 게시글 목록을 성공적으로 조회할 수 있다.', async () => {
         // given
-        prismaService.post.findMany = jest
-          .fn()
-          .mockResolvedValue(postList.reverse())
+        prismaService.post.findMany = jest.fn().mockResolvedValue(postList.reverse())
 
         // when
         const result = await service.getPostList({})
@@ -182,9 +175,7 @@ describe('PostService', () => {
 
       it('3. 게시글 목록을 5개 요청하면 성공적으로 조회할 수 있다.', async () => {
         // given
-        prismaService.post.findMany = jest
-          .fn()
-          .mockResolvedValue(postList.reverse().slice(0, 5))
+        prismaService.post.findMany = jest.fn().mockResolvedValue(postList.reverse().slice(0, 5))
 
         // when
         const result = await service.getPostList({}, 1, 5)
@@ -301,11 +292,9 @@ describe('PostService', () => {
     describe('Success', () => {
       it('1. 비밀번호가 맞으면 내용을 성공적으로 수정할 수 있다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValue({
-            password_hash: await Crypto.plainToHash('password'),
-          })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
 
         // when
@@ -316,11 +305,14 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
-          data: expect.objectContaining({ content: '내용 변경' }),
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          data: expect.objectContaining({
+            content: '내용 변경',
+            updated_at: expect.any(Date),
+          }),
         })
         expect(result).toEqual(
           expect.objectContaining({
@@ -332,11 +324,9 @@ describe('PostService', () => {
 
       it('2. 비밀번호가 맞으면 제목을 성공적으로 수정할 수 있다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValue({
-            password_hash: await Crypto.plainToHash('password'),
-          })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
 
         // when
@@ -347,24 +337,23 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
-          data: expect.objectContaining({ title: '제목 변경' }),
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          data: expect.objectContaining({
+            title: '제목 변경',
+            updated_at: expect.any(Date),
+          }),
         })
-        expect(result).toEqual(
-          expect.objectContaining({ title: '제목 변경', updated_at: updated }),
-        )
+        expect(result).toEqual(expect.objectContaining({ title: '제목 변경', updated_at: updated }))
       })
 
       it('3. 비밀번호가 맞으면 게시물을 성공적으로 수정할 수 있다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValue({
-            password_hash: await Crypto.plainToHash('password'),
-          })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
 
         // when
@@ -375,13 +364,14 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
           data: expect.objectContaining({
             title: '제목 변경',
             content: '내용 변경',
+            updated_at: expect.any(Date),
           }),
         })
         expect(result).toEqual(
@@ -395,11 +385,9 @@ describe('PostService', () => {
 
       it('4. 수정 시 updated_at 필드가 갱신된다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValue({
-            password_hash: await Crypto.plainToHash('password'),
-          })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
 
         // when
@@ -410,13 +398,14 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자' },
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
           data: expect.objectContaining({
             title: '제목 변경',
             content: '내용 변경',
+            updated_at: expect.any(Date),
           }),
         })
         expect(result.updated_at).toEqual(updated)
@@ -426,9 +415,7 @@ describe('PostService', () => {
       it('1. 비밀번호가 틀리면 게시글 수정에 실패한다.', async () => {
         // given
         const encrypted = await Crypto.plainToHash('password')
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValueOnce({ password_hash: encrypted })
+        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({ password_hash: encrypted })
 
         // when
         const result = service.updatePost(1, '작성자', '111', {
@@ -444,9 +431,7 @@ describe('PostService', () => {
 
       it('2. 존재하지 않는 게시글을 수정하려고 하면 오류가 발생한다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValueOnce(undefined)
+        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce(undefined)
 
         // when
         const result = service.updatePost(99999, '작성자', 'password', {
@@ -462,11 +447,9 @@ describe('PostService', () => {
 
       it('3. 수정할 때 제목, 내용이 없으면 오류가 발생한다.', async () => {
         // given
-        prismaService.post.findUnique = jest
-          .fn()
-          .mockResolvedValueOnce({
-            password_hash: await Crypto.plainToHash('password'),
-          })
+        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({
+          password_hash: await Crypto.plainToHash('password'),
+        })
         prismaService.post.update = jest.fn().mockResolvedValueOnce(undefined)
 
         // when
@@ -480,6 +463,74 @@ describe('PostService', () => {
         expect(prismaService.post.update).toHaveBeenCalledTimes(0)
         await expect(result).rejects.toThrowError('잘못된 요청입니다.')
         await expect(result).rejects.toThrow(BadRequestException)
+      })
+    })
+  })
+
+  describe('게시글 삭제', () => {
+    describe('Success', () => {
+      const updated = new Date()
+      const deletedPost = {
+        id: 1,
+        title: '제목',
+        content: '내용',
+        author_name: '작성자',
+        status: POST_STATUS.DELETED,
+        created_at: new Date(),
+        updated_at: updated,
+      }
+      it('1. 비밀번호가 맞으면 게시글을 성공적으로 삭제할 수 있다.', async () => {
+        // given
+        prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
+        prismaService.post.update = jest.fn().mockResolvedValue(deletedPost)
+
+        // when
+        const result = await service.softDeletePost(1, '작성자', 'password')
+
+        // then
+        expect(prismaService.post.findUnique).toHaveBeenCalledWith({
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+        })
+        expect(prismaService.post.update).toHaveBeenCalledWith({
+          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          data: expect.objectContaining({ status: POST_STATUS.DELETED, updated_at: expect.any(Date) }),
+        })
+        expect(result).toEqual(
+          expect.objectContaining({
+            status: POST_STATUS.DELETED,
+            updated_at: updated,
+          }),
+        )
+      })
+    })
+    describe('Fail', () => {
+      it('1. 비밀번호가 틀리면 게시글 삭제에 실패한다.', async () => {
+        // given
+        const encrypted = await Crypto.plainToHash('password')
+        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({ password_hash: encrypted })
+
+        // when
+        const result = service.softDeletePost(1, '작성자', 'PassWord')
+
+        // then
+        expect(prismaService.post.findUnique).toHaveBeenCalledTimes(1)
+        await expect(result).rejects.toThrowError('비밀번호가 틀렸습니다.')
+        await expect(result).rejects.toThrow(BadRequestException)
+      })
+
+      it('2. 존재하지 않는 게시글을 삭제하려고 하면 오류가 발생한다.', async () => {
+        // given
+        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce(undefined)
+
+        // when
+        const result = service.softDeletePost(1, '작성자', 'PassWord')
+
+        // then
+        expect(prismaService.post.findUnique).toHaveBeenCalledTimes(1)
+        await expect(result).rejects.toThrowError('게시글이 존재하지 않습니다.')
+        await expect(result).rejects.toThrow(NotFoundException)
       })
     })
   })

@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS post (
     status CHAR(30) DEFAULT 'ACTIVE' COMMENT '게시글 상태 (ACTIVE: 활성, DELETED: 삭제됨)',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '작성일시',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+    INDEX idx_id_author_status (id, author, status)
     INDEX idx_title_author (title, author_name),
     INDEX idx_author (author_name)
+    INDEX idx_title (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시글';

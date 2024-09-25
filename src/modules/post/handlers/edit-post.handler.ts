@@ -11,12 +11,7 @@ export class EditPostHandler implements ICommandHandler<EditPostCommand> {
   async execute(command: EditPostCommand) {
     const { id, author, password, title, content } = command
     const editValue = { title, content }
-    const post = await this.postService.updatePost(
-      id,
-      author,
-      password,
-      editValue,
-    )
+    const post = await this.postService.updatePost(id, author, password, editValue)
 
     const result = {
       updated_at: post.updated_at,
