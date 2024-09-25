@@ -43,6 +43,7 @@ class Docker {
       } catch (e) {
         if (count > this.LIMIT / 2) console.log('An unexpected error occurred:', e)
       }
+      if (count % 3 === 0) console.info(`${count}s...`)
       if (++count >= this.LIMIT) break
       await this.delay(500)
     }

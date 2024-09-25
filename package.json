@@ -7,8 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "db:start": "docker-compose -f ./infra/docker-compose.yaml up -d",
+    "db:start": "docker-compose -f ./infra/docker-compose.yaml up -d; yarn db:migration",
     "db:stop": "docker-compose -f ./infra/docker-compose.yaml down",
+    "db:migration": "cd infra/scripts && ts-node data_migration.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
