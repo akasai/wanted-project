@@ -1,10 +1,11 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { POST_STATUS } from '../../../src/common/enums'
+import { CreateCommentCommand } from '../../../src/modules/comment/commands'
 import { DeletePostCommand } from '../../../src/modules/post/commands'
 import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
 import { EditPostCommand } from '../../../src/modules/post/commands/edit-post.command'
-import { CreatePostDto, DeletePostDto, EditPostDto } from '../../../src/modules/post/dto'
+import { CreateCommentDto, CreatePostDto, DeletePostDto, EditPostDto } from '../../../src/modules/post/dto'
 import { SearchType } from '../../../src/modules/post/models/post'
 import { PostController } from '../../../src/modules/post/post.controller'
 import { GetPostListQuery } from '../../../src/modules/post/queries/get-post-list.query'
@@ -57,7 +58,7 @@ describe('PostController', () => {
       const result = await controller.createPost(body)
 
       expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreatePostCommand(body.title, body.content, body.author, body.password),
+        new CreatePostCommand('제목', '내용', '작성자', '1234'),
       )
       expect(result).toEqual({ id: 1 })
     })
@@ -221,6 +222,43 @@ describe('PostController', () => {
 
       expect(commandBus.execute).toHaveBeenCalledWith(new DeletePostCommand(1, '작성자', '1234'))
       expect(result).toBeUndefined() // return void
+    })
+  })
+
+  describe('댓글', () => {
+    it('댓글 작성 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: CreateCommentDto = {
+        content: '내용',
+        author: '작성자',
+        password: '1234',
+      }
+
+      commandBus.execute = jest.fn().mockResolvedValueOnce(1)
+
+      const result = await controller.createComment(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new CreateCommentCommand(1, '내용', '작성자', '1234'),
+      )
+      expect(result).toEqual({ id: 1 })
+    })
+
+    it('대댓글 작성 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: CreateCommentDto = {
+        content: '내용',
+        author: '작성자',
+        password: '1234',
+        comment_id: 1,
+      }
+
+      commandBus.execute = jest.fn().mockResolvedValueOnce(2)
+
+      const result = await controller.createComment(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new CreateCommentCommand(1, '내용', '작성자', '1234', 1),
+      )
+      expect(result).toEqual({ id: 2 })
     })
   })
 })

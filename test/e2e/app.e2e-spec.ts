@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { POST_STATUS } from '../../src/common/enums'
+import { CreateCommentCommand } from '../../src/modules/comment/commands'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../src/modules/post/commands'
 import { GetPostListDto } from '../../src/modules/post/dto'
 import { GetPostListQuery, GetPostQuery } from '../../src/modules/post/queries'
@@ -229,6 +230,32 @@ describe('AppController (e2e)', () => {
       await request(app.getHttpServer()).delete('/posts/1').send({ author: '작성자', password: '1234' }).expect(204)
 
       expect(commandBus.execute).toHaveBeenCalledWith(new DeletePostCommand(1, '작성자', '1234'))
+    })
+
+    it('댓글 작성', async () => {
+      // CommandBus의 execute 메서드 모킹
+      commandBus.execute = jest.fn().mockResolvedValue(1)
+
+      const response = await request(app.getHttpServer())
+        .post('/posts/1/comments')
+        .send({ content: '내용', author: '작성자', password: '1234' })
+        .expect(201)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreateCommentCommand(1, '내용', '작성자', '1234'))
+      expect(response.body).toEqual({ id: 1 })
+    })
+
+    it('대댓글 작성', async () => {
+      // CommandBus의 execute 메서드 모킹
+      commandBus.execute = jest.fn().mockResolvedValue(2)
+
+      const response = await request(app.getHttpServer())
+        .post('/posts/1/comments')
+        .send({ content: '내용', author: '작성자', password: '1234', comment_id: 1 })
+        .expect(201)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreateCommentCommand(1, '내용', '작성자', '1234', 1))
+      expect(response.body).toEqual({ id: 2 })
     })
   })
 })

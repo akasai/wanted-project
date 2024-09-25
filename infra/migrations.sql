@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS post (
 CREATE TABLE IF NOT EXISTS comments (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     post_id INT(11) NOT NULL COMMENT '게시물 ID (FK)',
-    parent_id BIGINT DEFAULT NULL COMMENT '부모 댓글 ID',
+    parent_id INT(11) DEFAULT NULL COMMENT '부모 댓글 ID',
     content TEXT NOT NULL COMMENT '댓글 내용',
     author_name CHAR(30) NOT NULL COMMENT '작성자 이름',
     password_hash VARCHAR(255) NOT NULL COMMENT 'encrypt=true; 비밀번호',

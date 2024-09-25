@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common'
 import { CqrsModule } from '@nestjs/cqrs'
+import { CommentModule } from '../comment/comment.module'
+import { CreateCommentHandler } from '../comment/handlers/create-comment.handler'
 import { CreatePostHandler } from './handlers/create-post.handler'
 import { DeletePostHandler } from './handlers/delete-post.handler'
 import { EditPostHandler } from './handlers/edit-post.handler'
@@ -8,11 +10,12 @@ import { GetPostHandler } from './handlers/get-post.handler'
 import { PostController } from './post.controller'
 import { PostService } from './post.service'
 
-const handler = [CreatePostHandler, GetPostHandler, GetPostListHandler, EditPostHandler, DeletePostHandler]
+const handler = [CreatePostHandler, GetPostHandler, GetPostListHandler, EditPostHandler, DeletePostHandler, CreateCommentHandler]
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, CommentModule],
   controllers: [PostController],
   providers: [PostService, ...handler],
 })
-export class PostModule {}
+export class PostModule {
+}

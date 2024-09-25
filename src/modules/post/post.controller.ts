@@ -12,8 +12,9 @@ import {
   Query,
 } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
+import { CreateCommentCommand } from '../comment/commands'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands'
-import { CreatePostDto, DeletePostDto, EditPostDto, GetPostListDto } from './dto'
+import { CreateCommentDto, CreatePostDto, DeletePostDto, EditPostDto, GetPostListDto } from './dto'
 import { EditPostModel, PostModel, SimplePostModel } from './models/post'
 import { GetPostListQuery, GetPostQuery } from './queries'
 
@@ -22,7 +23,8 @@ export class PostController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) {
+  }
 
   @Get()
   async getPostList(@Query() query: GetPostListDto): Promise<SimplePostModel[]> {
@@ -53,5 +55,15 @@ export class PostController {
   async deletePost(@Param('id', ParseIntPipe) id: number, @Body() body: DeletePostDto) {
     const { author, password } = body
     await this.commandBus.execute(new DeletePostCommand(id, author, password))
+  }
+
+  @Post('/:id(\\d+)/comments')
+  async createComment(
+    @Param('id', ParseIntPipe) postId: number,
+    @Body() body: CreateCommentDto,
+  ) {
+    const { content, author, password, comment_id } = body
+    const id = await this.commandBus.execute(new CreateCommentCommand(postId, content, author, password, comment_id))
+    return { id }
   }
 }
