@@ -24,6 +24,7 @@ describe('CommentService', () => {
               findUnique: jest.fn(),
               findMany: jest.fn(),
               create: jest.fn(),
+              groupBy: jest.fn(),
             },
           },
         },
@@ -342,7 +343,6 @@ describe('CommentService', () => {
 
       it('8.부모댓글과 자식댓글이 조립된 목록을 조회한다.', async () => {
         // given
-        const nested = Mocker.nestedCommentList
         prismaService.comments.findMany = jest.fn()
           .mockResolvedValueOnce(commentList)
           .mockResolvedValueOnce(replyList)
@@ -367,6 +367,29 @@ describe('CommentService', () => {
           }),
         )
         expect(result.length).toBe(10)
+      })
+
+      it('9.전체 댓글 갯수를 조회한다.', async () => {
+        // given
+        const postIds = commentList.map(({ post_id }) => post_id)
+        prismaService.comments.groupBy = jest.fn().mockResolvedValueOnce([
+          { _count: { id: 4 }, post_id: 1 },
+          { _count: { id: 2 }, post_id: 2 },
+        ])
+
+        // when
+        const result = await service.getCommentCounts(postIds)
+
+        // then
+        expect(prismaService.comments.groupBy).toHaveBeenCalledTimes(1)
+        expect(prismaService.comments.groupBy).toHaveBeenNthCalledWith(1,
+          expect.objectContaining({
+            by: 'post_id',
+            where: { post_id: { in: postIds }, status: COMMENT_STATUS.ACTIVE },
+            _count: { id: true },
+          }),
+        )
+        expect(result).toEqual(new Map([[1, 4], [2, 2]]))
       })
     })
   })

@@ -11,6 +11,18 @@ export class CommentService {
   constructor(private readonly prisma: PrismaService) {
   }
 
+  async getCommentCounts(postIds: number[]) {
+    const list = await this.prisma.comments.groupBy({
+      _count: { id: true },
+      where: { post_id: { in: postIds }, status: COMMENT_STATUS.ACTIVE },
+      by: 'post_id',
+    })
+    return list.reduce((m, { post_id, _count }) => {
+      m.set(post_id, _count.id)
+      return m
+    }, new Map<number, number>())
+  }
+
   async getCommentList(postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10): Promise<Array<Comments>> {
     return this.prisma.comments.findMany({
       where: { post_id: postId, status: COMMENT_STATUS.ACTIVE },
