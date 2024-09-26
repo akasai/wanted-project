@@ -5,12 +5,7 @@ export interface SearchFilter {
   order?: 'asc' | 'desc'
 }
 
-export interface EditPostObject {
-  title: string
-  content: string
-}
-
-export interface PostModel {
+export interface IPostModel {
   id: number
   title: string
   content: string
@@ -19,7 +14,7 @@ export interface PostModel {
   updated_at: Date
 }
 
-export interface SimplePostModel extends PostModel {}
+export interface ISimplePostModel extends IPostModel {}
 
 export interface EditPostModel {
   title?: string

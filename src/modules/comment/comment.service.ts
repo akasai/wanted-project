@@ -6,9 +6,35 @@ import { comments as Comments, post as Post } from '.prisma/client'
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
-  async createComment(postId: number, content: string, author: string, password: string, commentId?: number) {
+  async getCommentList(postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10): Promise<Array<Comments>> {
+    return this.prisma.comments.findMany({
+      where: { post_id: postId, status: COMMENT_STATUS.ACTIVE },
+      orderBy: { id: order || 'desc' },
+      skip: (page - 1) * size, // 건너뛸 게시물 수
+      take: size, // 한 페이지에 표시할 게시물 수
+    })
+  }
+
+  async getParentCommentList(postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10): Promise<Array<Comments>> {
+    return this.prisma.comments.findMany({
+      where: { post_id: postId, parent_id: null, status: COMMENT_STATUS.ACTIVE },
+      orderBy: { id: order || 'desc' },
+      skip: (page - 1) * size, // 건너뛸 게시물 수
+      take: size, // 한 페이지에 표시할 게시물 수
+    })
+  }
+
+  async getChildCommentList(ids: number[]): Promise<Array<Comments>> {
+    return this.prisma.comments.findMany({
+      where: { id: { in: ids }, status: COMMENT_STATUS.ACTIVE },
+      orderBy: { id: 'desc' },
+    })
+  }
+
+  async createComment(postId: number, content: string, author: string, password: string, commentId?: number): Promise<Comments> {
     if (!(content && author && password)) {
       throw new BadRequestException('잘못된 요청입니다.')
     }
@@ -40,7 +66,7 @@ export class CommentService {
     })
   }
 
-  async softDeleteComment(commentId: number, postId: number, author: string, password: string) {
+  async softDeleteComment(commentId: number, postId: number, author: string, password: string): Promise<Comments> {
     const comment = await this.prisma.comments.findUnique({
       where: { id: commentId, post_id: postId, author_name: author, status: COMMENT_STATUS.ACTIVE },
     })

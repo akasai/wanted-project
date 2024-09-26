@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { POST_STATUS } from '../../../src/common/enums'
 import { GetPostHandler } from '../../../src/modules/post/handlers/get-post.handler'
 import { PostService } from '../../../src/modules/post/post.service'
-import { GetPostQuery } from '../../../src/modules/post/queries/get-post.query'
+import { GetPostQuery } from '../../../src/modules/post/queries'
 
 describe('GetPostHandler', () => {
   let handler: GetPostHandler

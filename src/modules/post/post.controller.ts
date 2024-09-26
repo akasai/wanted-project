@@ -16,7 +16,8 @@ import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands'
 import { CreateCommentDto, CreatePostDto, DeletePostDto, EditPostDto, GetPostListDto } from './dto'
 import { DeleteCommentDto } from './dto/delete-comment.dto'
-import { EditPostModel, PostModel, SimplePostModel } from './models/post'
+import { EditPostModel, ISimplePostModel } from './models/post'
+import PostModel from './models/post-model'
 import { GetPostListQuery, GetPostQuery } from './queries'
 
 @Controller('posts')
@@ -27,7 +28,7 @@ export class PostController {
   ) {}
 
   @Get()
-  async getPostList(@Query() query: GetPostListDto): Promise<SimplePostModel[]> {
+  async getPostList(@Query() query: GetPostListDto): Promise<ISimplePostModel[]> {
     const { page, search_type, keyword, order } = query
     return await this.queryBus.execute(new GetPostListQuery(page, search_type, keyword, order))
   }

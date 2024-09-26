@@ -21,6 +21,7 @@ describe('CommentService', () => {
             },
             comments: {
               findUnique: jest.fn(),
+              findMany: jest.fn(),
               create: jest.fn(),
             },
           },
@@ -180,6 +181,190 @@ describe('CommentService', () => {
     })
   })
 
+  describe('댓글 조회', () => {
+    const commentList = Array.from({ length: 10 }, (_, idx) => ({
+      id: idx + 1,
+      post_id: 1,
+      parent_id: null,
+      content: '내용',
+      author_name: '작성자',
+      password_hash: 'password',
+      status: COMMENT_STATUS.ACTIVE,
+      created_at: new Date(),
+      updated_at: null,
+    }))
+    const replyList = Array.from({ length: 20 }, (_, idx) => ({
+      id: idx + 1,
+      post_id: 1,
+      parent_id: idx % 2,
+      content: '내용',
+      author_name: '작성자',
+      password_hash: 'password',
+      status: COMMENT_STATUS.ACTIVE,
+      created_at: new Date(),
+      updated_at: null,
+    }))
+
+    describe('Success', () => {
+      it('1.특정 게시물 ID에 대한 전체 댓글 목록이 정상적으로 조회된다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.reverse())
+
+        // when
+        const result = await service.getCommentList(1)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+          expect.objectContaining({
+            where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+            skip: 0,
+            take: 10,
+          }),
+        )
+        expect(result).toEqual(commentList)
+        Array(10).forEach((_, i) => {
+          expect(result[i].id).toEqual(10 - i)
+        })
+      })
+
+      it('2.댓글 목록은 페이징 처리된다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.reverse().slice(0, 5))
+
+        // when
+        const result = await service.getCommentList(1, 'desc', 1, 5)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+          expect.objectContaining({
+            where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+            skip: 0,
+            take: 5,
+          }),
+        )
+        expect(result.length).toBe(5)
+        Array(5).forEach((_, i) => {
+          expect(result[i].id).toEqual(10 - i)
+        })
+      })
+
+      it('3.댓글 목록은 오름차순으로 조회된다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList)
+
+        // when
+        const result = await service.getCommentList(1, 'asc')
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+          expect.objectContaining({
+            where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'asc' },
+            skip: 0,
+            take: 10,
+          }),
+        )
+        expect(result).toEqual(commentList)
+        Array(10).forEach((_, i) => {
+          expect(result[i].id).toEqual(i + 1)
+        })
+      })
+
+      it('4.부모댓글을 조회할 수 있다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.reverse())
+
+        // when
+        const result = await service.getParentCommentList(1)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalled()
+        expect(prismaService.comments.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { post_id: 1, parent_id: null, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+            skip: 0,
+            take: 10,
+          }),
+        )
+        expect(result.length).toBe(10)
+        Array(10).forEach((_, i) => {
+          expect(result[i].id).toEqual(10 - i)
+        })
+      })
+
+      it('5.부모댓글 목록은 페이징 처리된다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.reverse().slice(0, 5))
+
+        // when
+        const result = await service.getParentCommentList(1, 'desc', 1, 5)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalled()
+        expect(prismaService.comments.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { post_id: 1, parent_id: null, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+            skip: 0,
+            take: 5,
+          }),
+        )
+        expect(result.length).toBe(5)
+        Array(5).forEach((_, i) => {
+          expect(result[i].id).toEqual(10 - i)
+        })
+      })
+
+      it('6.부모댓글 목록은 오름차순 조회된다.', async () => {
+        // given
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList)
+
+        // when
+        const result = await service.getParentCommentList(1, 'asc', 1, 5)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalled()
+        expect(prismaService.comments.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { post_id: 1, parent_id: null, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'asc' },
+            skip: 0,
+            take: 5,
+          }),
+        )
+        expect(result).toBe(commentList)
+        Array(5).forEach((_, i) => {
+          expect(result[i].id).toEqual(10 - i)
+        })
+      })
+
+      it('7.대댓글을 조회할 수 있다.', async () => {
+        // given
+        const commentIdList = Array.from({ length: 10 }, (_, i) => i + 1)
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(replyList)
+
+        // when
+        const result = await service.getChildCommentList(commentIdList)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalled()
+        expect(prismaService.comments.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: { in: commentIdList }, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+          }),
+        )
+        expect(result).toEqual(replyList)
+      })
+    })
+  })
+
   describe('댓글 삭제', () => {
     describe('Success', () => {
       const updated = new Date()
@@ -232,6 +417,7 @@ describe('CommentService', () => {
         await expect(result).rejects.toThrowError('댓글이 존재하지 않습니다.')
         await expect(result).rejects.toThrow(NotFoundException)
       })
+
       it('2.비밀번호가 맞지 않으면 삭제에 실패한다.', async () => {
         // given
         const encrypted = await Crypto.plainToHash('password')

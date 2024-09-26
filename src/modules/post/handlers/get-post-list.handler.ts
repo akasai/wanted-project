@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
-import { SimplePostModel } from '../models/post'
+import { ISimplePostModel } from '../models/post'
 import { PostService } from '../post.service'
 import { GetPostListQuery } from '../queries/get-post-list.query'
 
@@ -7,7 +7,7 @@ import { GetPostListQuery } from '../queries/get-post-list.query'
 export class GetPostListHandler implements IQueryHandler<GetPostListQuery> {
   constructor(private readonly postService: PostService) {}
 
-  async execute(query: GetPostListQuery): Promise<SimplePostModel[]> {
+  async execute(query: GetPostListQuery): Promise<ISimplePostModel[]> {
     const { page, searchType, keyword, order } = query
     const filter = { author: undefined, title: '', order }
     if (searchType) {

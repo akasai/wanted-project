@@ -141,10 +141,7 @@ describe('PostService', () => {
         expect(prismaService.post.findUnique).toHaveBeenCalled()
         expect(prismaService.post.findUnique).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: {
-              id: 1,
-              status: POST_STATUS.ACTIVE,
-            },
+            where: { id: 1, status: POST_STATUS.ACTIVE },
           }),
         )
         expect(result).toEqual(post)
@@ -505,6 +502,7 @@ describe('PostService', () => {
         )
       })
     })
+
     describe('Fail', () => {
       it('1. 비밀번호가 틀리면 게시글 삭제에 실패한다.', async () => {
         // given
