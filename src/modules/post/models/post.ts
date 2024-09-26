@@ -1,4 +1,5 @@
 export type SearchType = 'title' | 'author'
+
 export interface SearchFilter {
   title?: string
   author?: string
@@ -12,6 +13,7 @@ export interface IPostModel {
   author: string
   created_at: Date
   updated_at: Date
+  comment_count: number
 }
 
 export interface ISimplePostModel extends IPostModel {}

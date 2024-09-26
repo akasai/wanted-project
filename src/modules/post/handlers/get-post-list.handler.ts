@@ -1,11 +1,16 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
+import { CommentService } from '../../comment/comment.service'
 import { ISimplePostModel } from '../models/post'
+import SimplePostModel from '../models/simple-post-model'
 import { PostService } from '../post.service'
-import { GetPostListQuery } from '../queries/get-post-list.query'
+import { GetPostListQuery } from '../queries'
 
 @QueryHandler(GetPostListQuery)
 export class GetPostListHandler implements IQueryHandler<GetPostListQuery> {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly commentService: CommentService,
+  ) {}
 
   async execute(query: GetPostListQuery): Promise<ISimplePostModel[]> {
     const { page, searchType, keyword, order } = query
@@ -15,13 +20,7 @@ export class GetPostListHandler implements IQueryHandler<GetPostListQuery> {
     }
 
     const list = await this.postService.getPostList(filter, page)
-    return list.map((post) => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      author: post.author_name,
-      created_at: post.created_at,
-      updated_at: post.updated_at,
-    }))
+    const countMap = await this.commentService.getCommentCounts(list.map(({ id }) => id))
+    return list.map((post) => SimplePostModel.from(post).setCommentCount(countMap.get(post.id)))
   }
 }

@@ -25,10 +25,7 @@ export class PostService {
 
   async getPostById(id: number): Promise<Post> {
     const post: Post = await this.prisma.post.findUnique({
-      where: {
-        id,
-        status: POST_STATUS.ACTIVE,
-      },
+      where: { id, status: POST_STATUS.ACTIVE },
     })
 
     if (!post) {

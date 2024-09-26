@@ -2,7 +2,6 @@ import { comments as Comments, post as Post } from '@prisma/client'
 import { COMMENT_STATUS, POST_STATUS } from '../../src/common/enums'
 
 export default class Mocker {
-
   static get updatedAt() {
     return new Date()
   }
@@ -102,7 +101,7 @@ export default class Mocker {
     const comment = (id: number, parentId: number) => ({
       id,
       post_id: 1,
-      parent_id: parentId ,
+      parent_id: parentId,
       content: '댓글 내용',
       author_name: '댓글 작성자',
       password_hash: 'password_hash',
@@ -139,5 +138,12 @@ export default class Mocker {
     comment.status = COMMENT_STATUS.DELETED
     comment.updated_at = Mocker.updatedAt
     return comment
+  }
+
+  static get commentCount(): Map<number, number> {
+    return new Map([
+      [1, 4],
+      [2, 2],
+    ])
   }
 }

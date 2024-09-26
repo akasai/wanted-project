@@ -11,7 +11,6 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
   async execute(command: CreateCommentCommand): Promise<number> {
     const { postId, content, author, password, commentId } = command
     const { id } = await this.commentService.createComment(postId, content, author, password, commentId)
-    await this.commentService.getCommentCounts([1,2])
     return id
   }
 }

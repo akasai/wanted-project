@@ -187,7 +187,8 @@ describe('CommentService', () => {
 
         // then
         expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -210,7 +211,8 @@ describe('CommentService', () => {
 
         // then
         expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -233,7 +235,8 @@ describe('CommentService', () => {
 
         // then
         expect(prismaService.comments.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { post_id: 1, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'asc' },
@@ -343,16 +346,15 @@ describe('CommentService', () => {
 
       it('8.부모댓글과 자식댓글이 조립된 목록을 조회한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn()
-          .mockResolvedValueOnce(commentList)
-          .mockResolvedValueOnce(replyList)
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList).mockResolvedValueOnce(replyList)
 
         // when
         const result = await service.getNestedCommentList(1)
 
         // then
         expect(prismaService.comments.findMany).toHaveBeenCalledTimes(2)
-        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { post_id: 1, parent_id: null, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -360,7 +362,8 @@ describe('CommentService', () => {
             take: 10,
           }),
         )
-        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(2,
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
+          2,
           expect.objectContaining({
             where: { id: { in: expect.any(Array) }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -382,14 +385,15 @@ describe('CommentService', () => {
 
         // then
         expect(prismaService.comments.groupBy).toHaveBeenCalledTimes(1)
-        expect(prismaService.comments.groupBy).toHaveBeenNthCalledWith(1,
+        expect(prismaService.comments.groupBy).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             by: 'post_id',
             where: { post_id: { in: postIds }, status: COMMENT_STATUS.ACTIVE },
             _count: { id: true },
           }),
         )
-        expect(result).toEqual(new Map([[1, 4], [2, 2]]))
+        expect(result).toEqual(Mocker.commentCount)
       })
     })
   })

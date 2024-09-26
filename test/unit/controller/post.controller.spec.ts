@@ -67,6 +67,7 @@ describe('PostController', () => {
         author_name: '작성자',
         created_at: new Date(),
         updated_at: null,
+        comment_count: 4,
       })
 
       const result = await controller.getPost(1)
@@ -79,6 +80,7 @@ describe('PostController', () => {
           content: '내용',
           author_name: '작성자',
           updated_at: null,
+          comment_count: expect.any(Number),
         }),
       )
     })

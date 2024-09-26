@@ -8,8 +8,7 @@ type NestedComment = Array<Comments & { reply: Array<Comments> }>
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getCommentCounts(postIds: number[]) {
     const list = await this.prisma.comments.groupBy({
@@ -23,7 +22,12 @@ export class CommentService {
     }, new Map<number, number>())
   }
 
-  async getCommentList(postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10): Promise<Array<Comments>> {
+  async getCommentList(
+    postId: number,
+    order: 'asc' | 'desc' = 'desc',
+    page: number = 1,
+    size: number = 10,
+  ): Promise<Array<Comments>> {
     return this.prisma.comments.findMany({
       where: { post_id: postId, status: COMMENT_STATUS.ACTIVE },
       orderBy: { id: order || 'desc' },
@@ -32,7 +36,12 @@ export class CommentService {
     })
   }
 
-  async getParentCommentList(postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10): Promise<Array<Comments>> {
+  async getParentCommentList(
+    postId: number,
+    order: 'asc' | 'desc' = 'desc',
+    page: number = 1,
+    size: number = 10,
+  ): Promise<Array<Comments>> {
     return this.prisma.comments.findMany({
       where: { post_id: postId, parent_id: null, status: COMMENT_STATUS.ACTIVE },
       orderBy: { id: order || 'desc' },
@@ -49,7 +58,10 @@ export class CommentService {
   }
 
   async getNestedCommentList(
-    postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10,
+    postId: number,
+    order: 'asc' | 'desc' = 'desc',
+    page: number = 1,
+    size: number = 10,
   ): Promise<NestedComment> {
     const parentList = await this.getParentCommentList(postId, order, page, size)
 
@@ -71,7 +83,13 @@ export class CommentService {
     }))
   }
 
-  async createComment(postId: number, content: string, author: string, password: string, commentId?: number): Promise<Comments> {
+  async createComment(
+    postId: number,
+    content: string,
+    author: string,
+    password: string,
+    commentId?: number,
+  ): Promise<Comments> {
     if (!(content && author && password)) {
       throw new BadRequestException('잘못된 요청입니다.')
     }

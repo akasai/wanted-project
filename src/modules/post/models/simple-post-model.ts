@@ -1,7 +1,7 @@
 import { post as Post } from '@prisma/client'
-import { IPostModel } from './post'
+import { IPostModel, ISimplePostModel } from './post'
 
-export default class PostModel implements IPostModel {
+export default class SimplePostModel implements ISimplePostModel {
   comment_count: number
 
   constructor(
@@ -14,7 +14,7 @@ export default class PostModel implements IPostModel {
   ) {}
 
   static from(post: Post) {
-    return new PostModel(post.id, post.title, post.content, post.author_name, post.created_at, post.updated_at)
+    return new SimplePostModel(post.id, post.title, post.content, post.author_name, post.created_at, post.updated_at)
   }
 
   setCommentCount(count: number) {

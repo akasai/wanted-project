@@ -148,7 +148,8 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -171,7 +172,8 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -194,7 +196,8 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { title: { contains: '제목' }, status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -214,7 +217,8 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { author_name: { contains: '작성자' }, status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -234,7 +238,8 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
-        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(
+          1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'asc' },
