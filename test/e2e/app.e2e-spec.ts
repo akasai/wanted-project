@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { POST_STATUS } from '../../src/common/enums'
-import { CreateCommentCommand } from '../../src/modules/comment/commands'
+import { CreateCommentCommand, DeleteCommentCommand } from '../../src/modules/comment/commands'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../src/modules/post/commands'
 import { GetPostListDto } from '../../src/modules/post/dto'
 import { GetPostListQuery, GetPostQuery } from '../../src/modules/post/queries'
@@ -256,6 +256,22 @@ describe('AppController (e2e)', () => {
 
       expect(commandBus.execute).toHaveBeenCalledWith(new CreateCommentCommand(1, '내용', '작성자', '1234', 1))
       expect(response.body).toEqual({ id: 2 })
+    })
+
+    it('댓글 삭제', async () => {
+      // QueryBus의 execute 메서드 모킹
+      commandBus.execute = jest.fn().mockResolvedValue({
+        id: 1,
+        status: POST_STATUS.DELETED,
+        updated_at: new Date(),
+      })
+
+      await request(app.getHttpServer())
+        .delete('/posts/1/comments/1')
+        .send({ author: '작성자', password: '1234' })
+        .expect(204)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new DeleteCommentCommand(1, 1, '작성자', '1234'))
     })
   })
 })

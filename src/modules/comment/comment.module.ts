@@ -5,5 +5,4 @@ import { CommentService } from './comment.service'
   providers: [CommentService],
   exports: [CommentService],
 })
-export class CommentModule {
-}
+export class CommentModule {}

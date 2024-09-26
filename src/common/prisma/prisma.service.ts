@@ -2,7 +2,10 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { Prisma, PrismaClient } from '@prisma/client'
 
 @Injectable()
-export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, Prisma.LogLevel> implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient<Prisma.PrismaClientOptions, Prisma.LogLevel>
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     super({
       log: [
@@ -12,7 +15,6 @@ export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, Pris
       ],
     })
   }
-
 
   async onModuleInit(): Promise<any> {
     this.$on('query', (e: Prisma.QueryEvent) => {

@@ -10,11 +10,7 @@ export class DeletePostHandler implements ICommandHandler<DeletePostCommand> {
 
   async execute(command: DeletePostCommand) {
     const { id, author, password } = command
-    const deleted = await this.postService.softDeletePost(id, author, password)
-    return {
-      id: deleted.id,
-      status: deleted.status,
-      updated_at: deleted.updated_at,
-    }
+    const { id: postId, status, updated_at } = await this.postService.softDeletePost(id, author, password)
+    return { id: postId, status, updated_at }
   }
 }

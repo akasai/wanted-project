@@ -2,12 +2,11 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { COMMENT_STATUS, POST_STATUS } from '../../common/enums'
 import { PrismaService } from '../../common/prisma/prisma.service'
 import { Crypto } from '../../utils/crypto'
-import { post as Post, comments as Comments } from '.prisma/client'
+import { comments as Comments, post as Post } from '.prisma/client'
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createComment(postId: number, content: string, author: string, password: string, commentId?: number) {
     if (!(content && author && password)) {
@@ -38,6 +37,25 @@ export class CommentService {
         author_name: author,
         password_hash: await Crypto.plainToHash(password),
       },
+    })
+  }
+
+  async softDeleteComment(commentId: number, postId: number, author: string, password: string) {
+    const comment = await this.prisma.comments.findUnique({
+      where: { id: commentId, post_id: postId, author_name: author, status: COMMENT_STATUS.ACTIVE },
+    })
+
+    if (!comment) {
+      throw new NotFoundException('댓글이 존재하지 않습니다.')
+    }
+
+    if (!(await Crypto.isMatchedEncrypted(password, comment.password_hash))) {
+      throw new BadRequestException('비밀번호가 틀렸습니다.')
+    }
+
+    return this.prisma.comments.update({
+      where: { id: commentId },
+      data: { status: COMMENT_STATUS.DELETED, updated_at: new Date() },
     })
   }
 }

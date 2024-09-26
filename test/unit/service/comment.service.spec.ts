@@ -18,9 +18,6 @@ describe('CommentService', () => {
           useValue: {
             post: {
               findUnique: jest.fn(),
-              // findMany: jest.fn(),
-              // create: jest.fn(),
-              // update: jest.fn(),
             },
             comments: {
               findUnique: jest.fn(),
@@ -34,7 +31,6 @@ describe('CommentService', () => {
     service = module.get<CommentService>(CommentService)
     prismaService = module.get<PrismaService>(PrismaService)
   })
-
 
   it('should be defined', () => {
     expect(service).toBeDefined()
@@ -180,6 +176,74 @@ describe('CommentService', () => {
         await expect(result).rejects.toThrow(NotFoundException)
         expect(prismaService.post.findUnique).toHaveBeenCalledTimes(1)
         expect(prismaService.comments.findUnique).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('댓글 삭제', () => {
+    describe('Success', () => {
+      const updated = new Date()
+      const deletedComment = {
+        id: 1,
+        post_id: 1,
+        content: '내용',
+        author_name: '작성자',
+        status: COMMENT_STATUS.DELETED,
+        created_at: new Date(),
+        updated_at: updated,
+      }
+      it('1.댓글 ID와 비밀번호가 주어지면 댓글이 정상적으로 삭제된다.', async () => {
+        // given
+        prismaService.comments.findUnique = jest.fn().mockResolvedValue({
+          password_hash: await Crypto.plainToHash('password'),
+        })
+        prismaService.comments.update = jest.fn().mockResolvedValue(deletedComment)
+
+        // when
+        const result = await service.softDeleteComment(1, 1, '작성자', 'password')
+
+        // then
+        expect(prismaService.comments.findUnique).toHaveBeenCalledWith({
+          where: { id: 1, post_id: 1, author_name: '작성자', status: COMMENT_STATUS.ACTIVE },
+        })
+        expect(prismaService.comments.update).toHaveBeenCalledWith({
+          where: { id: 1 },
+          data: expect.objectContaining({ status: COMMENT_STATUS.DELETED, updated_at: expect.any(Date) }),
+        })
+        expect(result).toEqual(
+          expect.objectContaining({
+            status: COMMENT_STATUS.DELETED,
+            updated_at: updated,
+          }),
+        )
+      })
+    })
+
+    describe('Fail', () => {
+      it('1.존재하지 않는 댓글은 삭제에 실패한다.', async () => {
+        // given
+        prismaService.comments.findUnique = jest.fn().mockResolvedValueOnce(undefined)
+
+        // when
+        const result = service.softDeleteComment(1, 1, '작성자', 'password')
+
+        // then
+        expect(prismaService.comments.findUnique).toHaveBeenCalledTimes(1)
+        await expect(result).rejects.toThrowError('댓글이 존재하지 않습니다.')
+        await expect(result).rejects.toThrow(NotFoundException)
+      })
+      it('2.비밀번호가 맞지 않으면 삭제에 실패한다.', async () => {
+        // given
+        const encrypted = await Crypto.plainToHash('password')
+        prismaService.comments.findUnique = jest.fn().mockResolvedValueOnce({ password_hash: encrypted })
+
+        // when
+        const result = service.softDeleteComment(1, 1, '작성자', 'PassWord')
+
+        // then
+        expect(prismaService.comments.findUnique).toHaveBeenCalledTimes(1)
+        await expect(result).rejects.toThrowError('비밀번호가 틀렸습니다.')
+        await expect(result).rejects.toThrow(BadRequestException)
       })
     })
   })
