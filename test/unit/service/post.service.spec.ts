@@ -4,6 +4,7 @@ import { POST_STATUS } from '../../../src/common/enums'
 import { PrismaService } from '../../../src/common/prisma/prisma.service'
 import { PostService } from '../../../src/modules/post/post.service'
 import { Crypto } from '../../../src/utils/crypto'
+import Mocker from '../../lib/mock'
 
 describe('PostService', () => {
   let service: PostService
@@ -37,16 +38,7 @@ describe('PostService', () => {
 
   describe('게시글 작성', () => {
     describe('Success', () => {
-      const createdPost = {
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        password_hash: '비밀번호',
-        status: POST_STATUS.ACTIVE,
-        created_at: new Date(),
-        updated_at: null,
-      }
+      const createdPost = Mocker.post
 
       it('1. 제목, 내용, 작성자, 비밀번호가 주어지면 게시글이 정상적으로 생성된다.', async () => {
         // given
@@ -127,8 +119,8 @@ describe('PostService', () => {
 
   describe('게시글 조회', () => {
     describe('Success', () => {
-      const post = { id: 1 }
-      const postList = Array.from({ length: 10 }, (_, i) => ({ id: i + 1 }))
+      const post = Mocker.post
+      const postList = Mocker.postListDesc
 
       it('1. 게시글 ID로 단일 게시글을 성공적으로 조회할 수 있다.', async () => {
         // given
@@ -149,14 +141,14 @@ describe('PostService', () => {
 
       it('2. 게시글 목록을 성공적으로 조회할 수 있다.', async () => {
         // given
-        prismaService.post.findMany = jest.fn().mockResolvedValue(postList.reverse())
+        prismaService.post.findMany = jest.fn().mockResolvedValue(postList)
 
         // when
         const result = await service.getPostList({})
 
         // then
-        expect(prismaService.post.findMany).toHaveBeenCalled()
-        expect(prismaService.post.findMany).toHaveBeenCalledWith(
+        expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -165,21 +157,21 @@ describe('PostService', () => {
           }),
         )
         expect(result).toEqual(postList)
-        Array(10).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id }, idx) => {
+          expect(id).toBe(10 - idx)
         })
       })
 
       it('3. 게시글 목록을 5개 요청하면 성공적으로 조회할 수 있다.', async () => {
         // given
-        prismaService.post.findMany = jest.fn().mockResolvedValue(postList.reverse().slice(0, 5))
+        prismaService.post.findMany = jest.fn().mockResolvedValue(postList.slice(0, 5))
 
         // when
         const result = await service.getPostList({}, 1, 5)
 
         // then
-        expect(prismaService.post.findMany).toHaveBeenCalled()
-        expect(prismaService.post.findMany).toHaveBeenCalledWith(
+        expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -188,8 +180,8 @@ describe('PostService', () => {
           }),
         )
         expect(result.length).toEqual(5)
-        Array(5).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id }, idx) => {
+          expect(id).toBe(10 - idx)
         })
       })
 
@@ -201,8 +193,8 @@ describe('PostService', () => {
         const result = await service.getPostList({ title: '제목' })
 
         // then
-        expect(prismaService.post.findMany).toHaveBeenCalled()
-        expect(prismaService.post.findMany).toHaveBeenCalledWith(
+        expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
           expect.objectContaining({
             where: { title: { contains: '제목' }, status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
@@ -214,7 +206,6 @@ describe('PostService', () => {
       })
 
       it('5. 작성자로 게시글을 검색할 수 있다.', async () => {
-        //특정 작성자가 작성한 게시글들이 필터링되어 반환되는지 확인.
         // given
         prismaService.post.findMany = jest.fn().mockResolvedValue(postList)
 
@@ -222,13 +213,10 @@ describe('PostService', () => {
         const result = await service.getPostList({ author: '작성자' })
 
         // then
-        expect(prismaService.post.findMany).toHaveBeenCalled()
-        expect(prismaService.post.findMany).toHaveBeenCalledWith(
+        expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
           expect.objectContaining({
-            where: {
-              author_name: { contains: '작성자' },
-              status: POST_STATUS.ACTIVE,
-            },
+            where: { author_name: { contains: '작성자' }, status: POST_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
             skip: 0,
             take: 10,
@@ -238,7 +226,6 @@ describe('PostService', () => {
       })
 
       it('6. 게시글 목록의 정렬을 오름차순으로 성공적으로 조회할 수 있다.', async () => {
-        //특정 작성자가 작성한 게시글들이 필터링되어 반환되는지 확인.
         // given
         prismaService.post.findMany = jest.fn().mockResolvedValue(postList)
 
@@ -246,8 +233,8 @@ describe('PostService', () => {
         const result = await service.getPostList({ order: 'asc' })
 
         // then
-        expect(prismaService.post.findMany).toHaveBeenCalled()
-        expect(prismaService.post.findMany).toHaveBeenCalledWith(
+        expect(prismaService.post.findMany).toHaveBeenCalledTimes(1)
+        expect(prismaService.post.findMany).toHaveBeenNthCalledWith(1,
           expect.objectContaining({
             where: { status: POST_STATUS.ACTIVE },
             orderBy: { id: 'asc' },
@@ -261,7 +248,6 @@ describe('PostService', () => {
 
     describe('Fail', () => {
       it('1. 존재하지 않는 ID로 조회하면 오류가 발생한다.', async () => {
-        //유효하지 않은 ID로 조회 시 예외가 발생하는지 확인.
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue(undefined)
 
@@ -276,16 +262,9 @@ describe('PostService', () => {
   })
 
   describe('게시글 수정', () => {
-    const updated = new Date()
-    const updatedPost = {
-      id: 1,
-      title: '제목 변경',
-      content: '내용 변경',
-      author_name: '작성자',
-      status: POST_STATUS.ACTIVE,
-      created_at: new Date(),
-      updated_at: updated,
-    }
+    const updated = Mocker.updatedAt
+    const updatedPost = Mocker.updatedPost
+
     describe('Success', () => {
       it('1. 비밀번호가 맞으면 내용을 성공적으로 수정할 수 있다.', async () => {
         // given
@@ -408,6 +387,7 @@ describe('PostService', () => {
         expect(result.updated_at).toEqual(updated)
       })
     })
+
     describe('Fail', () => {
       it('1. 비밀번호가 틀리면 게시글 수정에 실패한다.', async () => {
         // given
@@ -466,16 +446,8 @@ describe('PostService', () => {
 
   describe('게시글 삭제', () => {
     describe('Success', () => {
-      const updated = new Date()
-      const deletedPost = {
-        id: 1,
-        title: '제목',
-        content: '내용',
-        author_name: '작성자',
-        status: POST_STATUS.DELETED,
-        created_at: new Date(),
-        updated_at: updated,
-      }
+      const deletedPost = Mocker.deletedPost
+
       it('1. 비밀번호가 맞으면 게시글을 성공적으로 삭제할 수 있다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
@@ -495,10 +467,7 @@ describe('PostService', () => {
           data: expect.objectContaining({ status: POST_STATUS.DELETED, updated_at: expect.any(Date) }),
         })
         expect(result).toEqual(
-          expect.objectContaining({
-            status: POST_STATUS.DELETED,
-            updated_at: updated,
-          }),
+          expect.objectContaining({ status: POST_STATUS.DELETED, updated_at: deletedPost.updated_at }),
         )
       })
     })

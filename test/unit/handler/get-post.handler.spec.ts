@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { POST_STATUS } from '../../../src/common/enums'
 import { GetPostHandler } from '../../../src/modules/post/handlers/get-post.handler'
 import { PostService } from '../../../src/modules/post/post.service'
 import { GetPostQuery } from '../../../src/modules/post/queries'
+import Mocker from '../../lib/mock'
 
 describe('GetPostHandler', () => {
   let handler: GetPostHandler
@@ -27,16 +27,7 @@ describe('GetPostHandler', () => {
   })
 
   describe('게시글 조회', () => {
-    const post = {
-      id: 1,
-      title: '제목',
-      content: '내용',
-      author_name: '작성자',
-      password_hash: '비밀번호',
-      status: POST_STATUS.ACTIVE,
-      created_at: new Date(),
-      updated_at: null,
-    }
+    const post = Mocker.post
 
     it('GetPostQuery가 주어지면 게시글이 정상적으로 조회된다.', async () => {
       // given

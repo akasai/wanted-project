@@ -2,15 +2,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { COMMENT_STATUS, POST_STATUS } from '../../../src/common/enums'
 import { CreateCommentCommand, DeleteCommentCommand } from '../../../src/modules/comment/commands'
-import { DeletePostCommand } from '../../../src/modules/post/commands'
-import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
-import { EditPostCommand } from '../../../src/modules/post/commands/edit-post.command'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../../src/modules/post/commands'
 import { CreateCommentDto, CreatePostDto, DeletePostDto, EditPostDto } from '../../../src/modules/post/dto'
 import { DeleteCommentDto } from '../../../src/modules/post/dto/delete-comment.dto'
 import { SearchType } from '../../../src/modules/post/models/post'
 import { PostController } from '../../../src/modules/post/post.controller'
-import { GetPostListQuery } from '../../../src/modules/post/queries/get-post-list.query'
-import { GetPostQuery } from '../../../src/modules/post/queries/get-post.query'
+import { GetPostListQuery, GetPostQuery } from '../../../src/modules/post/queries'
 
 describe('PostController', () => {
   let controller: PostController

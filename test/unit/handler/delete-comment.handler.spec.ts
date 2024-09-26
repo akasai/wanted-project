@@ -3,6 +3,7 @@ import { COMMENT_STATUS } from '../../../src/common/enums'
 import { DeleteCommentCommand } from '../../../src/modules/comment/commands'
 import { CommentService } from '../../../src/modules/comment/comment.service'
 import { DeleteCommentHandler } from '../../../src/modules/comment/handlers/delete-comment.handler'
+import Mocker from '../../lib/mock'
 
 describe('DeleteCommentHandler', () => {
   let handler: DeleteCommentHandler
@@ -25,16 +26,8 @@ describe('DeleteCommentHandler', () => {
     service = module.get<CommentService>(CommentService)
   })
 
-  describe('게시글 삭제', () => {
-    const comment = {
-      id: 1,
-      post_id: 1,
-      content: '내용',
-      author_name: '작성자',
-      status: COMMENT_STATUS.DELETED,
-      created_at: new Date(),
-      updated_at: new Date(),
-    }
+  describe('댓글 삭제', () => {
+    const comment = Mocker.deletedComment
 
     it('DeleteCommentCommand가 주어지면 게시글이 정상적으로 삭제된다.', async () => {
       // given
@@ -46,11 +39,7 @@ describe('DeleteCommentHandler', () => {
 
       // then
       expect(service.softDeleteComment).toHaveBeenCalled()
-      expect(result).toEqual({
-        id: 1,
-        status: COMMENT_STATUS.DELETED,
-        updated_at: expect.any(Date),
-      })
+      expect(result).toEqual({ id: 1, status: COMMENT_STATUS.DELETED, updated_at: expect.any(Date) })
     })
   })
 })

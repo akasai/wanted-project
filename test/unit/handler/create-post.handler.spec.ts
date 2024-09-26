@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { POST_STATUS } from '../../../src/common/enums'
-import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
+import { CreatePostCommand } from '../../../src/modules/post/commands'
 import { CreatePostHandler } from '../../../src/modules/post/handlers/create-post.handler'
 import { PostService } from '../../../src/modules/post/post.service'
+import Mocker from '../../lib/mock'
 
 describe('CreatePostHandler', () => {
   let handler: CreatePostHandler
@@ -26,16 +26,7 @@ describe('CreatePostHandler', () => {
   })
 
   describe('게시글 작성', () => {
-    const createdPost = {
-      id: 1,
-      title: '제목',
-      content: '내용',
-      author_name: '작성자',
-      password_hash: '비밀번호',
-      status: POST_STATUS.ACTIVE,
-      created_at: new Date(),
-      updated_at: null,
-    }
+    const createdPost = Mocker.post
 
     it('CreatePostCommand가 주어지면 게시글이 정상적으로 생성된다.', async () => {
       // given

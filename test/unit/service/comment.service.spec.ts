@@ -4,6 +4,7 @@ import { COMMENT_STATUS, POST_STATUS } from '../../../src/common/enums'
 import { PrismaService } from '../../../src/common/prisma/prisma.service'
 import { CommentService } from '../../../src/modules/comment/comment.service'
 import { Crypto } from '../../../src/utils/crypto'
+import Mocker from '../../lib/mock'
 
 describe('CommentService', () => {
   let service: CommentService
@@ -39,20 +40,11 @@ describe('CommentService', () => {
 
   describe('댓글 작성', () => {
     describe('Success', () => {
-      const createdComment = {
-        id: 1,
-        post_id: 1,
-        content: '내용',
-        author_name: '작성자',
-        password_hash: 'password',
-        status: COMMENT_STATUS.ACTIVE,
-        created_at: new Date(),
-        updated_at: null,
-      }
+      const createdComment = Mocker.comment
 
       it('1.게시물 ID, 댓글 내용, 작성자, 비밀번호가 주어지면 댓글이 정상적으로 생성된다.', async () => {
         // given
-        prismaService.post.findUnique = jest.fn().mockResolvedValue({ id: 1 })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue(Mocker.post)
         prismaService.comments.create = jest.fn().mockResolvedValue(createdComment)
 
         // when
@@ -79,7 +71,7 @@ describe('CommentService', () => {
         // given
         const hashedPassword = await Crypto.plainToHash('password')
         jest.spyOn(Crypto, 'plainToHash').mockResolvedValueOnce(hashedPassword)
-        prismaService.post.findUnique = jest.fn().mockResolvedValue({ id: 1 })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue(Mocker.post)
         prismaService.comments.create = jest.fn().mockResolvedValue(createdComment)
 
         // when
@@ -97,29 +89,28 @@ describe('CommentService', () => {
 
       it('3.댓글의 대댓글도 작성할 수 있으며, 부모 댓글 ID가 주어지면 자식 댓글이 추가된다.', async () => {
         // given
-        prismaService.post.findUnique = jest.fn().mockResolvedValue({ id: 1 })
-        prismaService.comments.findUnique = jest.fn().mockResolvedValue({ id: 1 })
-        prismaService.comments.create = jest.fn().mockResolvedValue({ ...createdComment, parent_id: 1 })
+        const childComment = Mocker.childComment
+        prismaService.post.findUnique = jest.fn().mockResolvedValue(Mocker.post)
+        prismaService.comments.findUnique = jest.fn().mockResolvedValue(Mocker.comment)
+        prismaService.comments.create = jest.fn().mockResolvedValue(childComment)
 
         // when
-        const result = await service.createComment(1, '내용', '작성자', 'password', 1)
+        const result = await service.createComment(1, '대댓글 내용', '대댓글 작성자', 'password', 1)
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
           where: expect.objectContaining({ id: 1, status: POST_STATUS.ACTIVE }),
         })
-        expect(prismaService.comments.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              post_id: 1,
-              parent_id: 1,
-              content: '내용',
-              author_name: '작성자',
-              password_hash: expect.any(String),
-            }),
+        expect(prismaService.comments.create).toHaveBeenCalledWith({
+          data: expect.objectContaining({
+            post_id: 1,
+            parent_id: 1,
+            content: '대댓글 내용',
+            author_name: '대댓글 작성자',
+            password_hash: expect.any(String),
           }),
-        )
-        expect(result).toEqual({ ...createdComment, parent_id: 1 })
+        })
+        expect(result).toBe(childComment)
       })
     })
 
@@ -166,7 +157,7 @@ describe('CommentService', () => {
 
       it('5.댓글이 없다면 대댓글 생성에 실패한다.', async () => {
         // given
-        prismaService.post.findUnique = jest.fn().mockResolvedValue({ id: 1 })
+        prismaService.post.findUnique = jest.fn().mockResolvedValue(Mocker.post)
         prismaService.comments.findUnique = jest.fn().mockResolvedValue(undefined)
 
         // when
@@ -182,33 +173,13 @@ describe('CommentService', () => {
   })
 
   describe('댓글 조회', () => {
-    const commentList = Array.from({ length: 10 }, (_, idx) => ({
-      id: idx + 1,
-      post_id: 1,
-      parent_id: null,
-      content: '내용',
-      author_name: '작성자',
-      password_hash: 'password',
-      status: COMMENT_STATUS.ACTIVE,
-      created_at: new Date(),
-      updated_at: null,
-    }))
-    const replyList = Array.from({ length: 20 }, (_, idx) => ({
-      id: idx + 1,
-      post_id: 1,
-      parent_id: idx % 2,
-      content: '내용',
-      author_name: '작성자',
-      password_hash: 'password',
-      status: COMMENT_STATUS.ACTIVE,
-      created_at: new Date(),
-      updated_at: null,
-    }))
+    const commentList = Mocker.allCommentList
+    const replyList = Mocker.childCommentList
 
     describe('Success', () => {
-      it('1.특정 게시물 ID에 대한 전체 댓글 목록이 정상적으로 조회된다.', async () => {
+      it('1.특정 게시물 ID에 대한 전체 댓글 목록을 정상적으로 조회한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.reverse())
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList)
 
         // when
         const result = await service.getCommentList(1)
@@ -224,14 +195,14 @@ describe('CommentService', () => {
           }),
         )
         expect(result).toEqual(commentList)
-        Array(10).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id }, idx) => {
+          expect(id).toBe(10 - idx)
         })
       })
 
-      it('2.댓글 목록은 페이징 처리된다.', async () => {
+      it('2.댓글 목록은 페이징 처리한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.reverse().slice(0, 5))
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.slice(0, 5))
 
         // when
         const result = await service.getCommentList(1, 'desc', 1, 5)
@@ -247,14 +218,14 @@ describe('CommentService', () => {
           }),
         )
         expect(result.length).toBe(5)
-        Array(5).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id }, idx) => {
+          expect(id).toBe(10 - idx)
         })
       })
 
-      it('3.댓글 목록은 오름차순으로 조회된다.', async () => {
+      it('3.댓글 목록을 오름차순으로 조회한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList)
+        prismaService.comments.findMany = jest.fn().mockResolvedValueOnce(commentList.reverse())
 
         // when
         const result = await service.getCommentList(1, 'asc')
@@ -270,14 +241,14 @@ describe('CommentService', () => {
           }),
         )
         expect(result).toEqual(commentList)
-        Array(10).forEach((_, i) => {
-          expect(result[i].id).toEqual(i + 1)
+        result.forEach(({ id }, idx) => {
+          expect(id).toBe(idx + 1)
         })
       })
 
       it('4.부모댓글을 조회할 수 있다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.reverse())
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList)
 
         // when
         const result = await service.getParentCommentList(1)
@@ -293,14 +264,15 @@ describe('CommentService', () => {
           }),
         )
         expect(result.length).toBe(10)
-        Array(10).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id, parent_id }, idx) => {
+          expect(id).toBe(idx + 1)
+          expect(parent_id).toBe(null)
         })
       })
 
-      it('5.부모댓글 목록은 페이징 처리된다.', async () => {
+      it('5.부모댓글 목록은 페이징 처리한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.reverse().slice(0, 5))
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.slice(0, 5))
 
         // when
         const result = await service.getParentCommentList(1, 'desc', 1, 5)
@@ -316,14 +288,15 @@ describe('CommentService', () => {
           }),
         )
         expect(result.length).toBe(5)
-        Array(5).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id, parent_id }, idx) => {
+          expect(id).toBe(idx + 1)
+          expect(parent_id).toBe(null)
         })
       })
 
-      it('6.부모댓글 목록은 오름차순 조회된다.', async () => {
+      it('6.부모댓글 목록을 오름차순으로 조회한다.', async () => {
         // given
-        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList)
+        prismaService.comments.findMany = jest.fn().mockResolvedValue(commentList.reverse())
 
         // when
         const result = await service.getParentCommentList(1, 'asc', 1, 5)
@@ -339,12 +312,13 @@ describe('CommentService', () => {
           }),
         )
         expect(result).toBe(commentList)
-        Array(5).forEach((_, i) => {
-          expect(result[i].id).toEqual(10 - i)
+        result.forEach(({ id, parent_id }, idx) => {
+          expect(id).toBe(10 - idx)
+          expect(parent_id).toBe(null)
         })
       })
 
-      it('7.대댓글을 조회할 수 있다.', async () => {
+      it('7.자식댓글 목록을 조회한다.', async () => {
         // given
         const commentIdList = Array.from({ length: 10 }, (_, i) => i + 1)
         prismaService.comments.findMany = jest.fn().mockResolvedValue(replyList)
@@ -356,27 +330,52 @@ describe('CommentService', () => {
         expect(prismaService.comments.findMany).toHaveBeenCalled()
         expect(prismaService.comments.findMany).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: { id: { in: commentIdList }, status: COMMENT_STATUS.ACTIVE },
+            where: { id: { in: commentIdList }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
           }),
         )
         expect(result).toEqual(replyList)
+        result.forEach(({ parent_id }) => {
+          expect(parent_id).not.toBe(null)
+        })
+      })
+
+      it('8.부모댓글과 자식댓글이 조립된 목록을 조회한다.', async () => {
+        // given
+        const nested = Mocker.nestedCommentList
+        prismaService.comments.findMany = jest.fn()
+          .mockResolvedValueOnce(commentList)
+          .mockResolvedValueOnce(replyList)
+
+        // when
+        const result = await service.getNestedCommentList(1)
+
+        // then
+        expect(prismaService.comments.findMany).toHaveBeenCalledTimes(2)
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(1,
+          expect.objectContaining({
+            where: { post_id: 1, parent_id: null, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+            skip: 0,
+            take: 10,
+          }),
+        )
+        expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(2,
+          expect.objectContaining({
+            where: { id: { in: expect.any(Array) }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
+            orderBy: { id: 'desc' },
+          }),
+        )
+        expect(result.length).toBe(10)
       })
     })
   })
 
   describe('댓글 삭제', () => {
     describe('Success', () => {
-      const updated = new Date()
-      const deletedComment = {
-        id: 1,
-        post_id: 1,
-        content: '내용',
-        author_name: '작성자',
-        status: COMMENT_STATUS.DELETED,
-        created_at: new Date(),
-        updated_at: updated,
-      }
+      const updated = Mocker.updatedAt
+      const deletedComment = Mocker.deletedComment
+
       it('1.댓글 ID와 비밀번호가 주어지면 댓글이 정상적으로 삭제된다.', async () => {
         // given
         prismaService.comments.findUnique = jest.fn().mockResolvedValue({

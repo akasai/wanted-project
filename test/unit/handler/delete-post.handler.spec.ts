@@ -3,6 +3,7 @@ import { POST_STATUS } from '../../../src/common/enums'
 import { DeletePostCommand } from '../../../src/modules/post/commands'
 import { DeletePostHandler } from '../../../src/modules/post/handlers/delete-post.handler'
 import { PostService } from '../../../src/modules/post/post.service'
+import Mocker from '../../lib/mock'
 
 describe('DeletePostHandler', () => {
   let handler: DeletePostHandler
@@ -26,16 +27,7 @@ describe('DeletePostHandler', () => {
   })
 
   describe('게시글 삭제', () => {
-    const post = {
-      id: 1,
-      title: '제목',
-      content: '내용',
-      author_name: '작성자',
-      password_hash: '비밀번호',
-      status: POST_STATUS.DELETED,
-      created_at: new Date(),
-      updated_at: new Date(),
-    }
+    const post = Mocker.deletedPost
 
     it('DeletePostCommand가 주어지면 게시글이 정상적으로 삭제된다.', async () => {
       // given
@@ -47,11 +39,7 @@ describe('DeletePostHandler', () => {
 
       // then
       expect(service.softDeletePost).toHaveBeenCalled()
-      expect(result).toEqual({
-        id: 1,
-        status: POST_STATUS.DELETED,
-        updated_at: expect.any(Date),
-      })
+      expect(result).toEqual({ id: 1, status: POST_STATUS.DELETED, updated_at: expect.any(Date) })
     })
   })
 })
