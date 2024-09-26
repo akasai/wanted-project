@@ -4,6 +4,8 @@ import { PrismaService } from '../../common/prisma/prisma.service'
 import { Crypto } from '../../utils/crypto'
 import { comments as Comments, post as Post } from '.prisma/client'
 
+type NestedComment = Array<Comments & { reply: Array<Comments> }>
+
 @Injectable()
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {
@@ -29,9 +31,32 @@ export class CommentService {
 
   async getChildCommentList(ids: number[]): Promise<Array<Comments>> {
     return this.prisma.comments.findMany({
-      where: { id: { in: ids }, status: COMMENT_STATUS.ACTIVE },
+      where: { id: { in: ids }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
       orderBy: { id: 'desc' },
     })
+  }
+
+  async getNestedCommentList(
+    postId: number, order: 'asc' | 'desc' = 'desc', page: number = 1, size: number = 10,
+  ): Promise<NestedComment> {
+    const parentList = await this.getParentCommentList(postId, order, page, size)
+
+    const commentIds = parentList.map(({ id }) => id)
+    const childList = await this.getChildCommentList(commentIds)
+
+    const childMap = childList.reduce((m, o) => {
+      const parentId = o.parent_id
+      if (m.has(parentId)) {
+        m.get(parentId).push(o)
+      }
+      m.set(parentId, [])
+      return m
+    }, new Map<number, Array<Comments>>())
+
+    return parentList.map((comment) => ({
+      ...comment,
+      reply: childMap.get(comment.parent_id),
+    }))
   }
 
   async createComment(postId: number, content: string, author: string, password: string, commentId?: number): Promise<Comments> {
