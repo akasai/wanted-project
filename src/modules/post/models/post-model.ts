@@ -1,8 +1,10 @@
 import { post as Post } from '@prisma/client'
+import CommentModel from '../../comment/models/comment-model'
 import { IPostModel } from './post'
 
 export default class PostModel implements IPostModel {
   comment_count: number
+  comment_list: CommentModel[]
 
   constructor(
     readonly id: number,
@@ -17,8 +19,13 @@ export default class PostModel implements IPostModel {
     return new PostModel(post.id, post.title, post.content, post.author_name, post.created_at, post.updated_at)
   }
 
-  setCommentCount(count: number) {
+  setCommentCount(count?: number) {
     this.comment_count = count || 0
+    return this
+  }
+
+  setCommentList(list?: CommentModel[]) {
+    this.comment_list = list || []
     return this
   }
 }

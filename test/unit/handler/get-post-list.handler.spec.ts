@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
 import { GetPostListHandler } from '../../../src/modules/post/handlers/get-post-list.handler'
+import SimplePostModel from '../../../src/modules/post/models/simple-post-model'
 import { PostService } from '../../../src/modules/post/post.service'
 import { GetPostListQuery } from '../../../src/modules/post/queries'
 import Mocker from '../../lib/mock'
@@ -35,20 +36,19 @@ describe('GetPostListHandler', () => {
   })
 
   describe('게시글 목록 조회', () => {
-    const postList = Mocker.postListDesc
-
     it('GetPostListQuery가 주어지면 게시글 목록이 정상적으로 조회된다.', async () => {
       // given
-      service.getPostList = jest.fn().mockResolvedValue(postList)
+      service.getPostList = jest.fn().mockResolvedValue(Mocker.postListDesc)
       commentService.getCommentCounts = jest.fn().mockResolvedValue(Mocker.commentCount)
-      const query = new GetPostListQuery(1)
 
       // when
-      const result = await handler.execute(query)
+      const result = await handler.execute(new GetPostListQuery(1))
 
       // then
-      expect(service.getPostList).toHaveBeenCalled()
+      expect(service.getPostList).toHaveBeenCalledTimes(1)
+      expect(commentService.getCommentCounts).toHaveBeenCalledTimes(1)
       result.forEach((post, idx) => {
+        expect(post).toBeInstanceOf(SimplePostModel)
         expect(post).toEqual(
           expect.objectContaining({
             id: 10 - idx,

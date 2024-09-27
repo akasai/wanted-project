@@ -2,13 +2,13 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { COMMENT_STATUS, POST_STATUS } from '../../common/enums'
 import { PrismaService } from '../../common/prisma/prisma.service'
 import { Crypto } from '../../utils/crypto'
+import { NestedComment } from './models/comment'
 import { comments as Comments, post as Post } from '.prisma/client'
-
-type NestedComment = Array<Comments & { reply: Array<Comments> }>
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async getCommentCounts(postIds: number[]) {
     const list = await this.prisma.comments.groupBy({
@@ -50,9 +50,9 @@ export class CommentService {
     })
   }
 
-  async getChildCommentList(ids: number[]): Promise<Array<Comments>> {
+  async getChildCommentList(postId: number, ids: number[]): Promise<Array<Comments>> {
     return this.prisma.comments.findMany({
-      where: { id: { in: ids }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
+      where: { post_id: postId, parent_id: { in: ids }, status: COMMENT_STATUS.ACTIVE },
       orderBy: { id: 'desc' },
     })
   }
@@ -66,20 +66,18 @@ export class CommentService {
     const parentList = await this.getParentCommentList(postId, order, page, size)
 
     const commentIds = parentList.map(({ id }) => id)
-    const childList = await this.getChildCommentList(commentIds)
+    const childList = await this.getChildCommentList(postId, commentIds)
 
     const childMap = childList.reduce((m, o) => {
       const parentId = o.parent_id
-      if (m.has(parentId)) {
-        m.get(parentId).push(o)
-      }
-      m.set(parentId, [])
+      if (m.has(parentId)) m.get(parentId).push(o)
+      else m.set(parentId, [o])
       return m
     }, new Map<number, Array<Comments>>())
 
     return parentList.map((comment) => ({
       ...comment,
-      reply: childMap.get(comment.parent_id),
+      reply: childMap.get(comment.id) || [],
     }))
   }
 

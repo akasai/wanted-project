@@ -316,8 +316,9 @@ describe('CommentService', () => {
           }),
         )
         expect(result).toBe(commentList)
-        result.forEach(({ id, parent_id }, idx) => {
+        result.forEach(({ id, post_id, parent_id }, idx) => {
           expect(id).toBe(10 - idx)
+          expect(post_id).toBe(1)
           expect(parent_id).toBe(null)
         })
       })
@@ -328,19 +329,21 @@ describe('CommentService', () => {
         prismaService.comments.findMany = jest.fn().mockResolvedValue(replyList)
 
         // when
-        const result = await service.getChildCommentList(commentIdList)
+        const result = await service.getChildCommentList(1, commentIdList)
 
         // then
         expect(prismaService.comments.findMany).toHaveBeenCalled()
         expect(prismaService.comments.findMany).toHaveBeenCalledWith(
           expect.objectContaining({
-            where: { id: { in: commentIdList }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
+            where: { post_id: 1, parent_id: { in: commentIdList }, status: COMMENT_STATUS.ACTIVE },
             orderBy: { id: 'desc' },
           }),
         )
         expect(result).toEqual(replyList)
-        result.forEach(({ parent_id }) => {
+        result.forEach(({ post_id, parent_id }) => {
+          expect(post_id).toBe(1)
           expect(parent_id).not.toBe(null)
+          expect(commentIdList).toContain(parent_id)
         })
       })
 
@@ -365,11 +368,25 @@ describe('CommentService', () => {
         expect(prismaService.comments.findMany).toHaveBeenNthCalledWith(
           2,
           expect.objectContaining({
-            where: { id: { in: expect.any(Array) }, parent_id: { not: null }, status: COMMENT_STATUS.ACTIVE },
+            where: {
+              post_id: 1,
+              parent_id: { in: commentList.map(({ id }) => id) },
+              status: COMMENT_STATUS.ACTIVE,
+            },
             orderBy: { id: 'desc' },
           }),
         )
         expect(result.length).toBe(10)
+        result.forEach((comment) => {
+          expect(comment.parent_id).toBe(null) // 부모는 무조건 null
+          expect(comment.reply).toBeDefined()
+          expect(comment.reply.length).toBeGreaterThanOrEqual(0)
+          comment.reply.forEach((c) => {
+            expect(c.post_id).toBe(comment.post_id)
+            expect(c.parent_id).not.toBe(null)
+            expect(c.parent_id).toBe(comment.id) // FK
+          })
+        })
       })
 
       it('9.전체 댓글 갯수를 조회한다.', async () => {

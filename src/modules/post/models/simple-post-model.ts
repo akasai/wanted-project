@@ -17,7 +17,7 @@ export default class SimplePostModel implements ISimplePostModel {
     return new SimplePostModel(post.id, post.title, post.content, post.author_name, post.created_at, post.updated_at)
   }
 
-  setCommentCount(count: number) {
+  setCommentCount(count?: number) {
     this.comment_count = count || 0
     return this
   }

@@ -136,7 +136,7 @@ describe('PostService', () => {
             where: { id: 1, status: POST_STATUS.ACTIVE },
           }),
         )
-        expect(result).toEqual(post)
+        expect(result).toBe(post)
       })
 
       it('2. 게시글 목록을 성공적으로 조회할 수 있다.', async () => {
