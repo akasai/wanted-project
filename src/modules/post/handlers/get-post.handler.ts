@@ -10,8 +10,7 @@ export class GetPostHandler implements IQueryHandler<GetPostQuery> {
   constructor(
     private readonly postService: PostService,
     private readonly commentService: CommentService,
-  ) {
-  }
+  ) {}
 
   async execute(query: GetPostQuery): Promise<PostModel> {
     const { id } = query
@@ -21,8 +20,6 @@ export class GetPostHandler implements IQueryHandler<GetPostQuery> {
       this.commentService.getNestedCommentList(post.id),
     ])
     const commentModelList = list.map((l) => CommentModel.from(l).setReply(l))
-    return PostModel.from(post)
-      .setCommentCount(countMap.get(post.id))
-      .setCommentList(commentModelList)
+    return PostModel.from(post).setCommentCount(countMap.get(post.id)).setCommentList(commentModelList)
   }
 }

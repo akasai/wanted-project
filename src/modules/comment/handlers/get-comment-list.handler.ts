@@ -5,10 +5,7 @@ import { GetCommentListQuery } from '../queries'
 
 @QueryHandler(GetCommentListQuery)
 export class GetCommentListHandler implements IQueryHandler<GetCommentListQuery> {
-  constructor(
-    private readonly commentService: CommentService,
-  ) {
-  }
+  constructor(private readonly commentService: CommentService) {}
 
   async execute(query: GetCommentListQuery) {
     const { postId, page, order } = query

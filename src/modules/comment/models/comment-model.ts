@@ -10,8 +10,7 @@ export default class CommentModel implements ICommentModel {
     readonly author: string,
     readonly created_at: Date,
     readonly updated_at: Date,
-  ) {
-  }
+  ) {}
 
   static from(comment: Comments) {
     return new CommentModel(comment.id, comment.content, comment.author_name, comment.created_at, comment.updated_at)

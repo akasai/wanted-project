@@ -7,8 +7,7 @@ import { comments as Comments, post as Post } from '.prisma/client'
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getCommentCounts(postIds: number[]) {
     const list = await this.prisma.comments.groupBy({

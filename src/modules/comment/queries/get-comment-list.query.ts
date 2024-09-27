@@ -5,6 +5,5 @@ export class GetCommentListQuery implements IQuery {
     readonly postId: number,
     readonly page: number,
     readonly order?: 'asc' | 'desc',
-  ) {
-  }
+  ) {}
 }

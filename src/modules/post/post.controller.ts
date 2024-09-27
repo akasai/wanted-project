@@ -33,8 +33,7 @@ export class PostController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {
-  }
+  ) {}
 
   @Get()
   async getPostList(@Query() query: GetPostListDto): Promise<ISimplePostModel[]> {
@@ -68,10 +67,7 @@ export class PostController {
   }
 
   @Get('/:id(\\d+)/comments')
-  async getPostCommentList(
-    @Param('id', ParseIntPipe) id: number,
-    @Query() query: GetPostCommentListDto,
-  ) {
+  async getPostCommentList(@Param('id', ParseIntPipe) id: number, @Query() query: GetPostCommentListDto) {
     const { page, order } = query
     return await this.queryBus.execute(new GetCommentListQuery(id, page, order))
   }

@@ -28,5 +28,4 @@ const handler = [
   controllers: [PostController],
   providers: [PostService, ...handler],
 })
-export class PostModule {
-}
+export class PostModule {}
