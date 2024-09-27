@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs'
 import { CommentModule } from '../comment/comment.module'
 import { CreateCommentHandler } from '../comment/handlers/create-comment.handler'
 import { DeleteCommentHandler } from '../comment/handlers/delete-comment.handler'
+import { GetCommentListQuery } from '../comment/queries'
 import { CreatePostHandler } from './handlers/create-post.handler'
 import { DeletePostHandler } from './handlers/delete-post.handler'
 import { EditPostHandler } from './handlers/edit-post.handler'
@@ -19,6 +20,7 @@ const handler = [
   DeletePostHandler,
   CreateCommentHandler,
   DeleteCommentHandler,
+  GetCommentListQuery,
 ]
 
 @Module({
@@ -26,4 +28,5 @@ const handler = [
   controllers: [PostController],
   providers: [PostService, ...handler],
 })
-export class PostModule {}
+export class PostModule {
+}

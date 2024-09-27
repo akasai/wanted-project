@@ -13,8 +13,16 @@ import {
 } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands'
+import { GetCommentListQuery } from '../comment/queries'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands'
-import { CreateCommentDto, CreatePostDto, DeletePostDto, EditPostDto, GetPostListDto } from './dto'
+import {
+  CreateCommentDto,
+  CreatePostDto,
+  DeletePostDto,
+  EditPostDto,
+  GetPostCommentListDto,
+  GetPostListDto,
+} from './dto'
 import { DeleteCommentDto } from './dto/delete-comment.dto'
 import { EditPostModel, ISimplePostModel } from './models/post'
 import PostModel from './models/post-model'
@@ -25,7 +33,8 @@ export class PostController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) {
+  }
 
   @Get()
   async getPostList(@Query() query: GetPostListDto): Promise<ISimplePostModel[]> {
@@ -56,6 +65,15 @@ export class PostController {
   async deletePost(@Param('id', ParseIntPipe) id: number, @Body() body: DeletePostDto) {
     const { author, password } = body
     await this.commandBus.execute(new DeletePostCommand(id, author, password))
+  }
+
+  @Get('/:id(\\d+)/comments')
+  async getPostCommentList(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: GetPostCommentListDto,
+  ) {
+    const { page, order } = query
+    return await this.queryBus.execute(new GetCommentListQuery(id, page, order))
   }
 
   @Post('/:id(\\d+)/comments')
