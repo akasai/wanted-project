@@ -18,40 +18,38 @@ class Docker {
   }
 
   async run() {
-    return this.checkDockerStatus()
-  }
-
-  async checkDockerStatus() {
     let count = 1
     while (true) {
       try {
         await this.prisma.$connect()
-        console.info(`✔ Database connection(${count}) established`)
-
-        const tables = await this.prisma.$queryRaw<Array<TableMeta>>`SHOW TABLES`
-
-        if (tables.length) {
-          await this.migrationData()
-
-          for (const { Tables_in_test_db: tableName } of tables) {
-            const countResult = await this.prisma.$queryRawUnsafe(`SELECT COUNT(*) as count FROM ${tableName}`)
-            console.log(`✔ ${tableName}: ${countResult[0].count}`)
-          }
-        }
-        await this.prisma.$disconnect()
+        console.info(`✔ Database connection(${count}s) established`)
         break
       } catch (e) {
         if (count > this.LIMIT / 2) console.log('An unexpected error occurred:', e)
       }
       if (count % 3 === 0) console.info(`${count}s...`)
       if (++count >= this.LIMIT) break
-      await this.delay(500)
+      await this.delay(1000)
     }
+
+    const tables = await this.prisma.$queryRaw<Array<TableMeta>>`SHOW TABLES`
+    if (tables.length) {
+      await this.migrationData()
+
+      for (const { Tables_in_test_db: tableName } of tables) {
+        const countResult = await this.prisma.$queryRawUnsafe(`SELECT COUNT(*) as count FROM ${tableName}`)
+        console.log(`✔ ${tableName}: ${countResult[0].count}`)
+      }
+    }
+
+    await this.prisma.$disconnect()
   }
 
   async migrationData() {
     const POST_CNT = 25
     const COMMENT_CNT = 50
+    const KEYWORD_CNT = 50
+    const WORD_CNT = 15
 
     const posts = []
     for (let i = 1; i <= POST_CNT; i++) {
@@ -63,6 +61,7 @@ class Docker {
       }
       posts.push(d)
     }
+    console.log(`\t - 1. Migrate data: Post(${posts.length})`)
     await this.prisma.post.createMany({ data: posts })
 
     const comments = []
@@ -89,16 +88,21 @@ class Docker {
       reply.push(c)
     }
 
+    console.log(`\t - 2. Migrate data: Comment(${[...comments, ...reply].length})`)
     await this.prisma.comments.createMany({ data: [...comments, ...reply] })
 
     const keywords = []
-    for (let i = 1; i <= 50; i++) {
+    const words = Array.from({ length: WORD_CNT }, () => this.faker.lorem.words(1))
+    for (let i = 1; i <= KEYWORD_CNT; i++) {
       const k = {
         author_name: this.faker.internet.displayName(),
-        keywords: this.faker.lorem.words(),
+        keyword: words[Math.floor(Math.random() * WORD_CNT)]
       }
+
+      keywords.push(k)
     }
 
+    console.log(`\t - 3. Migrate data: Keyword(${keywords.length})`)
     await this.prisma.keyword.createMany({ data: keywords })
   }
 
