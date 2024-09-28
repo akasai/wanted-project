@@ -1,12 +1,13 @@
 import { Global, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
+import { AlarmModule } from './common/alarm/alarm.module'
 import { PrismaModule } from './common/prisma/prisma.module'
 import { PrismaService } from './common/prisma/prisma.service'
 import { PostModule } from './modules/post/post.module'
 
 @Global()
 @Module({
-  imports: [PrismaModule, PostModule],
+  imports: [PrismaModule, AlarmModule, PostModule],
   controllers: [AppController],
   providers: [
     {
