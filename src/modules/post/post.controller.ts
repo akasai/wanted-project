@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ApiNoContentResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator'
 import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands/impl'
 import { CommentModel, CreatedCommentModel } from '../comment/models'
@@ -34,6 +34,7 @@ import {
 import { DeleteCommentDto } from './models/dto/delete-comment.dto'
 import { GetPostListQuery, GetPostQuery } from './queries/impl'
 
+@ApiTags('Posts')
 @Controller('posts')
 export class PostController {
   constructor(
