@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { COMMENT_STATUS, POST_STATUS } from '../../common/enums'
 import { PrismaService } from '../../common/prisma/prisma.service'
 import { Crypto } from '../../utils/crypto'
-import { NestedComment } from './models/comment'
+import { NestedComment } from './models'
 import { comments as Comments, post as Post } from '.prisma/client'
 
 @Injectable()
