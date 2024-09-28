@@ -11,13 +11,13 @@
     "db:stop": "docker-compose -f ./infra/docker-compose.yaml down",
     "db:migration": "cd infra/scripts && ts-node data_migration.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "start": "NODE_ENV=development nest start",
+    "start:dev": "NODE_ENV=development nest start --watch",
+    "start:debug": "NODE_ENV=development nest start --debug --watch",
+    "start:prod": "NODE_ENV=production node dist/main",
+    "test": "NODE_ENV=test jest -i",
+    "test:watch": "yarn test --watch",
+    "test:cov": "yarn test --coverage"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
