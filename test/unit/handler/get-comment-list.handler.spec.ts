@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import { GetCommentListHandler } from '../../../src/modules/comment/handlers/get-comment-list.handler'
 import CommentModel from '../../../src/modules/comment/models/comment-model'
-import { GetCommentListQuery } from '../../../src/modules/comment/queries'
+import { GetCommentListHandler } from '../../../src/modules/comment/queries/handlers'
+import { GetCommentListQuery } from '../../../src/modules/comment/queries/impl'
 import Mocker from '../../lib/mock'
 
 describe('GetCommentListHandler', () => {

@@ -1,9 +1,9 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { COMMENT_STATUS, POST_STATUS } from '../../../src/common/enums'
-import { CreateCommentCommand, DeleteCommentCommand } from '../../../src/modules/comment/commands'
-import { GetCommentListQuery } from '../../../src/modules/comment/queries'
-import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../../src/modules/post/commands'
+import { CreateCommentCommand, DeleteCommentCommand } from '../../../src/modules/comment/commands/impl'
+import { GetCommentListQuery } from '../../../src/modules/comment/queries/impl'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../../src/modules/post/commands/impl'
 import {
   CreateCommentDto,
   CreatePostDto,
@@ -11,11 +11,11 @@ import {
   EditPostDto,
   GetPostCommentListDto,
   GetPostListDto,
-} from '../../../src/modules/post/dto'
-import { DeleteCommentDto } from '../../../src/modules/post/dto/delete-comment.dto'
-import { SearchType } from '../../../src/modules/post/models/post'
+  SearchType,
+} from '../../../src/modules/post/models'
+import { DeleteCommentDto } from '../../../src/modules/post/models/dto/delete-comment.dto'
 import { PostController } from '../../../src/modules/post/post.controller'
-import { GetPostListQuery, GetPostQuery } from '../../../src/modules/post/queries'
+import { GetPostListQuery, GetPostQuery } from '../../../src/modules/post/queries/impl'
 
 describe('PostController', () => {
   let controller: PostController

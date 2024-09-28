@@ -12,9 +12,9 @@ import {
   Query,
 } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
-import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands'
-import { GetCommentListQuery } from '../comment/queries'
-import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands'
+import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands/impl'
+import { GetCommentListQuery } from '../comment/queries/impl'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands/impl'
 import {
   CreateCommentDto,
   CreatePostDto,
@@ -22,11 +22,11 @@ import {
   EditPostDto,
   GetPostCommentListDto,
   GetPostListDto,
-} from './dto'
-import { DeleteCommentDto } from './dto/delete-comment.dto'
+} from './models/dto'
+import { DeleteCommentDto } from './models/dto/delete-comment.dto'
 import { EditPostModel, ISimplePostModel } from './models/post'
 import PostModel from './models/post-model'
-import { GetPostListQuery, GetPostQuery } from './queries'
+import { GetPostListQuery, GetPostQuery } from './queries/impl'
 
 @Controller('posts')
 export class PostController {

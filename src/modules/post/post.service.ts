@@ -3,7 +3,7 @@ import { post as Post } from '@prisma/client'
 import { POST_STATUS } from '../../common/enums'
 import { PrismaService } from '../../common/prisma/prisma.service'
 import { Crypto } from '../../utils/crypto'
-import { SearchFilter } from './models/post'
+import { SearchFilter } from './models'
 
 @Injectable()
 export class PostService {

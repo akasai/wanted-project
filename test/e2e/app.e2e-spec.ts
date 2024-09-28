@@ -4,11 +4,11 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from '../../src/app.module'
 import { POST_STATUS } from '../../src/common/enums'
-import { CreateCommentCommand, DeleteCommentCommand } from '../../src/modules/comment/commands'
-import { GetCommentListQuery } from '../../src/modules/comment/queries'
-import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../src/modules/post/commands'
-import { GetPostCommentListDto, GetPostListDto } from '../../src/modules/post/dto'
-import { GetPostListQuery, GetPostQuery } from '../../src/modules/post/queries'
+import { CreateCommentCommand, DeleteCommentCommand } from '../../src/modules/comment/commands/impl'
+import { GetCommentListQuery } from '../../src/modules/comment/queries/impl'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../src/modules/post/commands/impl'
+import { GetPostCommentListDto, GetPostListDto } from '../../src/modules/post/models'
+import { GetPostListQuery, GetPostQuery } from '../../src/modules/post/queries/impl'
 
 describe('AppController (e2e)', () => {
   let app: INestApplication

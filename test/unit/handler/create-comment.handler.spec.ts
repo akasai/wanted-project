@@ -1,9 +1,9 @@
 import { EventBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
-import { CreateCommentCommand } from '../../../src/modules/comment/commands'
+import { CreateCommentHandler } from '../../../src/modules/comment/commands/handlers'
+import { CreateCommentCommand } from '../../../src/modules/comment/commands/impl'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import { CreateCommentHandler } from '../../../src/modules/comment/handlers/create-comment.handler'
-import { KeywordEvent } from '../../../src/modules/post/events/keyword.event'
+import { KeywordEvent } from '../../../src/modules/post/events/impl'
 import Mocker from '../../lib/mock'
 
 describe('CreateCommentHandler', () => {

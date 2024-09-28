@@ -28,5 +28,4 @@ import { PostModule } from './modules/post/post.module'
   ],
   exports: ['KEYWORD_CACHE'],
 })
-export class AppModule {
-}
+export class AppModule {}

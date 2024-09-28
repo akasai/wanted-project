@@ -5,5 +5,4 @@ import { KeywordService } from './keyword.service'
   providers: [KeywordService],
   exports: [KeywordService],
 })
-export class KeywordModule {
-}
+export class KeywordModule {}

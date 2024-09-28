@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { POST_STATUS } from '../../../src/common/enums'
-import { DeletePostCommand } from '../../../src/modules/post/commands'
-import { DeletePostHandler } from '../../../src/modules/post/handlers/delete-post.handler'
+import { DeletePostCommand } from '../../../src/modules/post/commands/impl'
+import { DeletePostHandler } from '../../../src/modules/post/commands/handlers'
 import { PostService } from '../../../src/modules/post/post.service'
 import Mocker from '../../lib/mock'
 

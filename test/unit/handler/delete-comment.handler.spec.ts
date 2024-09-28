@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { COMMENT_STATUS } from '../../../src/common/enums'
-import { DeleteCommentCommand } from '../../../src/modules/comment/commands'
+import { DeleteCommentHandler } from '../../../src/modules/comment/commands/handlers'
+import { DeleteCommentCommand } from '../../../src/modules/comment/commands/impl'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import { DeleteCommentHandler } from '../../../src/modules/comment/handlers/delete-comment.handler'
 import Mocker from '../../lib/mock'
 
 describe('DeleteCommentHandler', () => {

@@ -40,7 +40,9 @@ describe('KeywordService', () => {
       // then
       await testSleep(2100) // 2000ms 딜레이를 고려하여 약간 더 긴 시간 대기)
       expect(console.log).toHaveBeenCalledTimes(1)
-      expect(console.log).toHaveBeenCalledWith('[작성자1, 작성자2]: 키워드가 포함된 게시물이 등록되었습니다. - 2000ms delayed')
+      expect(console.log).toHaveBeenCalledWith(
+        '[작성자1, 작성자2]: 키워드가 포함된 게시물이 등록되었습니다. - 2000ms delayed',
+      )
     })
 
     it('2. 키워드가 포함되지 않은 경우 알림이 전송되지 않는다.', async () => {
@@ -64,7 +66,9 @@ describe('KeywordService', () => {
       // then
       await testSleep(2100) // 2000ms 딜레이를 고려하여 약간 더 긴 시간 대기)
       expect(console.log).toHaveBeenCalledTimes(1)
-      expect(console.log).toHaveBeenCalledWith('[작성자1, 작성자2]: 키워드가 포함된 댓글이 등록되었습니다. - 2000ms delayed')
+      expect(console.log).toHaveBeenCalledWith(
+        '[작성자1, 작성자2]: 키워드가 포함된 댓글이 등록되었습니다. - 2000ms delayed',
+      )
     })
 
     it('4. 댓글에 키워드가 포함되지 않은 경우', async () => {
@@ -88,7 +92,9 @@ describe('KeywordService', () => {
       // then : 중복된 글자가 두개지만 실제로 알람은 2명에게만.
       await testSleep(2100) // 2000ms 딜레이를 고려하여 약간 더 긴 시간 대기)
       expect(console.log).toHaveBeenCalledTimes(1)
-      expect(console.log).toHaveBeenCalledWith('[작성자1, 작성자2]: 키워드가 포함된 게시물이 등록되었습니다. - 2000ms delayed')
+      expect(console.log).toHaveBeenCalledWith(
+        '[작성자1, 작성자2]: 키워드가 포함된 게시물이 등록되었습니다. - 2000ms delayed',
+      )
     })
   })
 })

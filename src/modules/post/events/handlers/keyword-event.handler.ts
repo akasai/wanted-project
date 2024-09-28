@@ -1,13 +1,10 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs'
-import { KeywordService } from '../../keyword/keyword.service'
-import { KeywordEvent } from '../events/keyword.event'
+import { KeywordService } from '../../../keyword/keyword.service'
+import { KeywordEvent } from '../impl'
 
 @EventsHandler(KeywordEvent)
 export class KeywordEventHandler implements IEventHandler<KeywordEvent> {
-  constructor(
-    private keywordService: KeywordService,
-  ) {
-  }
+  constructor(private keywordService: KeywordService) {}
 
   handle(event: KeywordEvent) {
     const { type, content, postId } = event
