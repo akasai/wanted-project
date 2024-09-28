@@ -50,17 +50,46 @@ class Docker {
   }
 
   async migrationData() {
-    const data = []
-    for (let i = 1; i <= 25; i++) {
+    const POST_CNT = 25
+    const COMMENT_CNT = 50
+
+    const posts = []
+    for (let i = 1; i <= POST_CNT; i++) {
       const d = {
         title: this.faker.lorem.sentence(),
         content: this.faker.lorem.text(),
         author_name: this.faker.internet.displayName(),
-        password_hash: await Crypto.plainToHash((i + 1).toString()),
+        password_hash: await Crypto.plainToHash('password'),
       }
-      data.push(d)
+      posts.push(d)
     }
-    await this.prisma.post.createMany({ data })
+    await this.prisma.post.createMany({ data: posts })
+
+    const comments = []
+    for (let i = 1; i <= COMMENT_CNT; i++) {
+      const c = {
+        post_id: i % POST_CNT + 1,
+        content: this.faker.lorem.text(),
+        author_name: this.faker.internet.displayName(),
+        password_hash: await Crypto.plainToHash('password'),
+      }
+      comments.push(c)
+    }
+
+    let j = 1
+    const reply = []
+    for (const comment of comments) {
+      const c = {
+        post_id: comment.post_id,
+        parent_id: j++,
+        content: this.faker.lorem.text(),
+        author_name: this.faker.internet.displayName(),
+        password_hash: await Crypto.plainToHash('password'),
+      }
+      reply.push(c)
+    }
+
+    await this.prisma.comments.createMany({ data: [...comments, ...reply] })
   }
 
   private async delay(timeout: number) {
