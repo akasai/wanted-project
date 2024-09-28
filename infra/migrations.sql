@@ -24,3 +24,12 @@ CREATE TABLE IF NOT EXISTS comments (
     INDEX idx_post_id (post_id),
     INDEX idx_parent_id (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='댓글';
+
+CREATE TABLE keyword (
+    id          int(11) AUTO_INCREMENT PRIMARY KEY,
+    author_name CHAR(30)     NOT NULL COMMENT '작성자 이름 (동명이인 없음)',
+    keyword     VARCHAR(255) NOT NULL COMMENT '알림 키워드',
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '등록 일시',
+    INDEX idx_keyword (keyword),
+    INDEX idx_author_name (author_name)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='키워드';
