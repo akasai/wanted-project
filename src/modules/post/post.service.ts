@@ -25,10 +25,7 @@ export class PostService {
 
   async getPostById(id: number): Promise<Post> {
     const post: Post = await this.prisma.post.findUnique({
-      where: {
-        id,
-        status: POST_STATUS.ACTIVE,
-      },
+      where: { id, status: POST_STATUS.ACTIVE },
     })
 
     if (!post) {
@@ -99,11 +96,9 @@ export class PostService {
       throw new BadRequestException('비밀번호가 틀렸습니다.')
     }
 
-    const deleted = await this.prisma.post.update({
+    return this.prisma.post.update({
       where: { id, author_name: author, status: POST_STATUS.ACTIVE },
       data: { status: POST_STATUS.DELETED, updated_at: new Date() },
     })
-
-    return deleted
   }
 }

@@ -1,22 +1,25 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
-import { PostModel } from '../models/post'
+import { CommentService } from '../../comment/comment.service'
+import CommentModel from '../../comment/models/comment-model'
+import PostModel from '../models/post-model'
 import { PostService } from '../post.service'
-import { GetPostQuery } from '../queries/get-post.query'
+import { GetPostQuery } from '../queries'
 
 @QueryHandler(GetPostQuery)
 export class GetPostHandler implements IQueryHandler<GetPostQuery> {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly commentService: CommentService,
+  ) {}
 
   async execute(query: GetPostQuery): Promise<PostModel> {
     const { id } = query
     const post = await this.postService.getPostById(id)
-    return {
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      author: post.author_name,
-      created_at: post.created_at,
-      updated_at: post.updated_at,
-    }
+    const [countMap, list] = await Promise.all([
+      this.commentService.getCommentCounts([post.id]),
+      this.commentService.getNestedCommentList(post.id),
+    ])
+    const commentModelList = list.map((l) => CommentModel.from(l).setReply(l))
+    return PostModel.from(post).setCommentCount(countMap.get(post.id)).setCommentList(commentModelList)
   }
 }

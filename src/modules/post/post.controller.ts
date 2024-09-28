@@ -12,9 +12,20 @@ import {
   Query,
 } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
+import { CreateCommentCommand, DeleteCommentCommand } from '../comment/commands'
+import { GetCommentListQuery } from '../comment/queries'
 import { CreatePostCommand, DeletePostCommand, EditPostCommand } from './commands'
-import { CreatePostDto, DeletePostDto, EditPostDto, GetPostListDto } from './dto'
-import { EditPostModel, PostModel, SimplePostModel } from './models/post'
+import {
+  CreateCommentDto,
+  CreatePostDto,
+  DeletePostDto,
+  EditPostDto,
+  GetPostCommentListDto,
+  GetPostListDto,
+} from './dto'
+import { DeleteCommentDto } from './dto/delete-comment.dto'
+import { EditPostModel, ISimplePostModel } from './models/post'
+import PostModel from './models/post-model'
 import { GetPostListQuery, GetPostQuery } from './queries'
 
 @Controller('posts')
@@ -25,7 +36,7 @@ export class PostController {
   ) {}
 
   @Get()
-  async getPostList(@Query() query: GetPostListDto): Promise<SimplePostModel[]> {
+  async getPostList(@Query() query: GetPostListDto): Promise<ISimplePostModel[]> {
     const { page, search_type, keyword, order } = query
     return await this.queryBus.execute(new GetPostListQuery(page, search_type, keyword, order))
   }
@@ -53,5 +64,29 @@ export class PostController {
   async deletePost(@Param('id', ParseIntPipe) id: number, @Body() body: DeletePostDto) {
     const { author, password } = body
     await this.commandBus.execute(new DeletePostCommand(id, author, password))
+  }
+
+  @Get('/:id(\\d+)/comments')
+  async getPostCommentList(@Param('id', ParseIntPipe) id: number, @Query() query: GetPostCommentListDto) {
+    const { page, order } = query
+    return await this.queryBus.execute(new GetCommentListQuery(id, page, order))
+  }
+
+  @Post('/:id(\\d+)/comments')
+  async createComment(@Param('id', ParseIntPipe) postId: number, @Body() body: CreateCommentDto) {
+    const { content, author, password, comment_id } = body
+    const id = await this.commandBus.execute(new CreateCommentCommand(postId, content, author, password, comment_id))
+    return { id }
+  }
+
+  @Delete('/:postId(\\d+)/comments/:id(\\d+)')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteComment(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Param('id', ParseIntPipe) commentId: number,
+    @Body() body: DeleteCommentDto,
+  ) {
+    const { author, password } = body
+    await this.commandBus.execute(new DeleteCommentCommand(postId, commentId, author, password))
   }
 }

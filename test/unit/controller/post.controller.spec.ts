@@ -1,14 +1,21 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
-import { POST_STATUS } from '../../../src/common/enums'
-import { DeletePostCommand } from '../../../src/modules/post/commands'
-import { CreatePostCommand } from '../../../src/modules/post/commands/create-post.command'
-import { EditPostCommand } from '../../../src/modules/post/commands/edit-post.command'
-import { CreatePostDto, DeletePostDto, EditPostDto } from '../../../src/modules/post/dto'
+import { COMMENT_STATUS, POST_STATUS } from '../../../src/common/enums'
+import { CreateCommentCommand, DeleteCommentCommand } from '../../../src/modules/comment/commands'
+import { GetCommentListQuery } from '../../../src/modules/comment/queries'
+import { CreatePostCommand, DeletePostCommand, EditPostCommand } from '../../../src/modules/post/commands'
+import {
+  CreateCommentDto,
+  CreatePostDto,
+  DeletePostDto,
+  EditPostDto,
+  GetPostCommentListDto,
+  GetPostListDto,
+} from '../../../src/modules/post/dto'
+import { DeleteCommentDto } from '../../../src/modules/post/dto/delete-comment.dto'
 import { SearchType } from '../../../src/modules/post/models/post'
 import { PostController } from '../../../src/modules/post/post.controller'
-import { GetPostListQuery } from '../../../src/modules/post/queries/get-post-list.query'
-import { GetPostQuery } from '../../../src/modules/post/queries/get-post.query'
+import { GetPostListQuery, GetPostQuery } from '../../../src/modules/post/queries'
 
 describe('PostController', () => {
   let controller: PostController
@@ -56,9 +63,7 @@ describe('PostController', () => {
 
       const result = await controller.createPost(body)
 
-      expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreatePostCommand(body.title, body.content, body.author, body.password),
-      )
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreatePostCommand('제목', '내용', '작성자', '1234'))
       expect(result).toEqual({ id: 1 })
     })
 
@@ -70,6 +75,7 @@ describe('PostController', () => {
         author_name: '작성자',
         created_at: new Date(),
         updated_at: null,
+        comment_count: 4,
       })
 
       const result = await controller.getPost(1)
@@ -82,12 +88,13 @@ describe('PostController', () => {
           content: '내용',
           author_name: '작성자',
           updated_at: null,
+          comment_count: expect.any(Number),
         }),
       )
     })
 
     it('게시글 목록 조회 요청이 오면 queryBus.execute 실행된다.', async () => {
-      const query = { page: 1 }
+      const query: GetPostListDto = { page: 1 }
       queryBus.execute = jest.fn().mockResolvedValue([
         {
           id: 1,
@@ -220,6 +227,76 @@ describe('PostController', () => {
       const result = await controller.deletePost(1, body)
 
       expect(commandBus.execute).toHaveBeenCalledWith(new DeletePostCommand(1, '작성자', '1234'))
+      expect(result).toBeUndefined() // return void
+    })
+  })
+
+  describe('댓글', () => {
+    it('댓글 작성 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: CreateCommentDto = {
+        content: '내용',
+        author: '작성자',
+        password: '1234',
+      }
+
+      commandBus.execute = jest.fn().mockResolvedValueOnce(1)
+
+      const result = await controller.createComment(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreateCommentCommand(1, '내용', '작성자', '1234'))
+      expect(result).toEqual({ id: 1 })
+    })
+
+    it('대댓글 작성 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: CreateCommentDto = {
+        content: '내용',
+        author: '작성자',
+        password: '1234',
+        comment_id: 1,
+      }
+
+      commandBus.execute = jest.fn().mockResolvedValueOnce(2)
+
+      const result = await controller.createComment(1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new CreateCommentCommand(1, '내용', '작성자', '1234', 1))
+      expect(result).toEqual({ id: 2 })
+    })
+
+    it('댓글 목록 조회 요청이 오면 queryBus.execute 실행된다.', async () => {
+      const query: GetPostCommentListDto = { page: 1 }
+      queryBus.execute = jest.fn().mockResolvedValueOnce([
+        {
+          id: 1,
+          content: '댓글 내용',
+          author: '댓글 작성자',
+          created_at: new Date(),
+          updated_at: null,
+          reply: [],
+        },
+      ])
+
+      const result = await controller.getPostCommentList(1, query)
+
+      expect(queryBus.execute).toHaveBeenCalledWith(new GetCommentListQuery(1, 1))
+      expect(result.length).toBe(1)
+    })
+
+    it('댓글 삭제 요청이 오면 commandBus.execute 실행된다.', async () => {
+      const body: DeleteCommentDto = {
+        author: '작성자',
+        password: '1234',
+      }
+
+      commandBus.execute = jest.fn().mockResolvedValue({
+        id: 1,
+        status: COMMENT_STATUS.DELETED,
+        updated_at: new Date(),
+      })
+
+      const result = await controller.deleteComment(1, 1, body)
+
+      expect(commandBus.execute).toHaveBeenCalledWith(new DeleteCommentCommand(1, 1, '작성자', '1234'))
       expect(result).toBeUndefined() // return void
     })
   })

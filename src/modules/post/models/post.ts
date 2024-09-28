@@ -1,25 +1,22 @@
 export type SearchType = 'title' | 'author'
+
 export interface SearchFilter {
   title?: string
   author?: string
   order?: 'asc' | 'desc'
 }
 
-export interface EditPostObject {
-  title: string
-  content: string
-}
-
-export interface PostModel {
+export interface IPostModel {
   id: number
   title: string
   content: string
   author: string
   created_at: Date
   updated_at: Date
+  comment_count: number
 }
 
-export interface SimplePostModel extends PostModel {}
+export interface ISimplePostModel extends IPostModel {}
 
 export interface EditPostModel {
   title?: string
