@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { EditPostCommand } from '../../../src/modules/post/commands'
-import { EditPostHandler } from '../../../src/modules/post/handlers/edit-post.handler'
+import { EditPostHandler } from '../../../src/modules/post/commands/handlers'
+import { EditPostCommand } from '../../../src/modules/post/commands/impl'
 import { PostService } from '../../../src/modules/post/post.service'
 import Mocker from '../../lib/mock'
 

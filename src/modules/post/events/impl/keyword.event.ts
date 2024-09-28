@@ -5,6 +5,5 @@ export class KeywordEvent implements IEvent {
     readonly type: string,
     readonly postId: number,
     readonly content: string,
-  ) {
-  }
+  ) {}
 }

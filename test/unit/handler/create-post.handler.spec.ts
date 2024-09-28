@@ -1,8 +1,8 @@
 import { EventBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
-import { CreatePostCommand } from '../../../src/modules/post/commands'
-import { KeywordEvent } from '../../../src/modules/post/events/keyword.event'
-import { CreatePostHandler } from '../../../src/modules/post/handlers/create-post.handler'
+import { CreatePostHandler } from '../../../src/modules/post/commands/handlers'
+import { CreatePostCommand } from '../../../src/modules/post/commands/impl'
+import { KeywordEvent } from '../../../src/modules/post/events/impl'
 import { PostService } from '../../../src/modules/post/post.service'
 import Mocker from '../../lib/mock'
 

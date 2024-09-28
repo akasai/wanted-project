@@ -19,4 +19,4 @@ services:
       - --default-time-zone=+09:00
       - --max-connections=250
     volumes:
-      - ./db/mysql/data:/var/lib/mysql # local-dir:container-dir
+      - ../db/mysql/data:/var/lib/mysql # local-dir:container-dir

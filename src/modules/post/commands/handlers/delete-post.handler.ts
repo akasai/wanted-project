@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { DeletePostCommand } from '../commands'
-import { PostService } from '../post.service'
+import { DeletePostCommand } from '../impl'
+import { PostService } from '../../post.service'
 
 @Injectable()
 @CommandHandler(DeletePostCommand)

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import { GetPostListHandler } from '../../../src/modules/post/handlers/get-post-list.handler'
-import SimplePostModel from '../../../src/modules/post/models/simple-post-model'
+import { SimplePostModel } from '../../../src/modules/post/models'
 import { PostService } from '../../../src/modules/post/post.service'
-import { GetPostListQuery } from '../../../src/modules/post/queries'
+import { GetPostListHandler } from '../../../src/modules/post/queries/handlers'
+import { GetPostListQuery } from '../../../src/modules/post/queries/impl'
 import Mocker from '../../lib/mock'
 
 describe('GetPostListHandler', () => {

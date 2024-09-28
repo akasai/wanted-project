@@ -6,5 +6,4 @@ import { AlarmService } from './alarm.service'
   providers: [AlarmService],
   exports: [AlarmService],
 })
-export class AlarmModule {
-}
+export class AlarmModule {}

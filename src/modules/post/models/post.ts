@@ -18,7 +18,7 @@ export interface IPostModel {
 
 export interface ISimplePostModel extends IPostModel {}
 
-export interface EditPostModel {
+export interface IEditPostModel {
   title?: string
   content?: string
   updated_at: Date

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs'
-import { KeywordEvent } from '../../post/events/keyword.event'
-import { CreateCommentCommand } from '../commands'
-import { CommentService } from '../comment.service'
+import { KeywordEvent } from '../../../post/events/impl'
+import { CommentService } from '../../comment.service'
+import { CreateCommentCommand } from '../impl'
 
 @Injectable()
 @CommandHandler(CreateCommentCommand)

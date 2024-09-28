@@ -1,11 +1,11 @@
 import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import CommentModel from '../../../src/modules/comment/models/comment-model'
-import { GetPostHandler } from '../../../src/modules/post/handlers/get-post.handler'
-import PostModel from '../../../src/modules/post/models/post-model'
+import { CommentModel } from '../../../src/modules/comment/models'
+import { PostModel } from '../../../src/modules/post/models'
 import { PostService } from '../../../src/modules/post/post.service'
-import { GetPostQuery } from '../../../src/modules/post/queries'
+import { GetPostHandler } from '../../../src/modules/post/queries/handlers'
+import { GetPostQuery } from '../../../src/modules/post/queries/impl'
 import Mocker from '../../lib/mock'
 
 describe('GetPostHandler', () => {

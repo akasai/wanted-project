@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { KeywordService } from '../../../src/modules/keyword/keyword.service'
-import { KeywordEvent } from '../../../src/modules/post/events/keyword.event'
-import { KeywordEventHandler } from '../../../src/modules/post/handlers/keyword-event.handler'
+import { KeywordEventHandler } from '../../../src/modules/post/events/handlers'
+import { KeywordEvent } from '../../../src/modules/post/events/impl'
 
 describe('KeywordEventHandler', () => {
   let handler: KeywordEventHandler
@@ -34,7 +34,12 @@ describe('KeywordEventHandler', () => {
 
       // then
       expect(service.checkKeywordIncluded).toHaveBeenCalledTimes(1)
-      expect(service.checkKeywordIncluded).toHaveBeenNthCalledWith(1, '게시글 본문', 1, '키워드가 포함된 게시물이 등록되었습니다.')
+      expect(service.checkKeywordIncluded).toHaveBeenNthCalledWith(
+        1,
+        '게시글 본문',
+        1,
+        '키워드가 포함된 게시물이 등록되었습니다.',
+      )
     })
 
     it('[댓글] KeywordEvent가 발행되면 알람이 정상적으로 발행된다.', async () => {
@@ -46,8 +51,12 @@ describe('KeywordEventHandler', () => {
 
       // then
       expect(service.checkKeywordIncluded).toHaveBeenCalledTimes(1)
-      expect(service.checkKeywordIncluded).toHaveBeenNthCalledWith(1, '댓글 본문', 1, '키워드가 포함된 댓글이 등록되었습니다.')
+      expect(service.checkKeywordIncluded).toHaveBeenNthCalledWith(
+        1,
+        '댓글 본문',
+        1,
+        '키워드가 포함된 댓글이 등록되었습니다.',
+      )
     })
-
   })
 })

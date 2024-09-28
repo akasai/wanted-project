@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { DeleteCommentCommand } from '../commands'
-import { CommentService } from '../comment.service'
+import { DeleteCommentCommand } from '../impl'
+import { CommentService } from '../../comment.service'
 
 @Injectable()
 @CommandHandler(DeleteCommentCommand)

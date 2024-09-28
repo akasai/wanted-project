@@ -6,8 +6,7 @@ export class KeywordService {
   constructor(
     @Inject('KEYWORD_CACHE') private readonly keywordCache: Map<string, string[]>,
     private readonly alarmService: AlarmService,
-  ) {
-  }
+  ) {}
 
   checkKeywordIncluded(content: string, id: number, template: string) {
     const userList = []
