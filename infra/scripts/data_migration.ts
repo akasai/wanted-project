@@ -90,6 +90,16 @@ class Docker {
     }
 
     await this.prisma.comments.createMany({ data: [...comments, ...reply] })
+
+    const keywords = []
+    for (let i = 1; i <= 50; i++) {
+      const k = {
+        author_name: this.faker.internet.displayName(),
+        keywords: this.faker.lorem.words(),
+      }
+    }
+
+    await this.prisma.keyword.createMany({ data: keywords })
   }
 
   private async delay(timeout: number) {

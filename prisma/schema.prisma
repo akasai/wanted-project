@@ -37,3 +37,14 @@ model comments {
   @@index([parent_id], map: "idx_parent_id")
   @@index([post_id], map: "idx_post_id")
 }
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model keyword {
+  id          Int       @id @default(autoincrement())
+  author_name String    @db.Char(30)
+  keyword     String    @db.VarChar(255)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([author_name], map: "idx_author_name")
+  @@index([keyword], map: "idx_keyword")
+}
