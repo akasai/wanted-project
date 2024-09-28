@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import CommentModel from '../../../src/modules/comment/models/comment-model'
+import { CommentModel } from '../../../src/modules/comment/models'
 import { GetCommentListHandler } from '../../../src/modules/comment/queries/handlers'
 import { GetCommentListQuery } from '../../../src/modules/comment/queries/impl'
 import Mocker from '../../lib/mock'

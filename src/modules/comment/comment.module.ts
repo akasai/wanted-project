@@ -9,5 +9,4 @@ import { QueryHandlers } from './queries/handlers'
   providers: [CommentService, ...CommentHandlers, ...QueryHandlers],
   exports: [CommentService, ...CommentHandlers, ...QueryHandlers],
 })
-export class CommentModule {
-}
+export class CommentModule {}

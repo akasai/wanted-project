@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { CommentService } from '../../../comment/comment.service'
-import CommentModel from '../../../comment/models/comment-model'
-import PostModel from '../../models/post-model'
+import { CommentModel } from '../../../comment/models'
+import { PostModel } from '../../models'
 import { PostService } from '../../post.service'
 import { GetPostQuery } from '../impl'
 

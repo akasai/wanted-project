@@ -14,8 +14,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     // sendTo3rdParty()
     console.error(statusCode, message)
     console.error(request)
-    response.status(statusCode)
-      .json(exception.response)
+    response.status(statusCode).json(exception.response)
   }
 
   private getMsg(error: Error) {
@@ -26,7 +25,7 @@ export class AllExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === 'string') {
         return exceptionResponse
       } else if (typeof exceptionResponse === 'object') {
-        return (exceptionResponse as any).message ? exceptionResponse as any : ''
+        return (exceptionResponse as any).message ? (exceptionResponse as any) : ''
       }
     }
 

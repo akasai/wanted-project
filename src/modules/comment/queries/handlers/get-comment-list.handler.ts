@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { CommentService } from '../../comment.service'
-import CommentModel from '../../models/comment-model'
+import { CommentModel } from '../../models'
 import { GetCommentListQuery } from '../impl'
 
 @QueryHandler(GetCommentListQuery)

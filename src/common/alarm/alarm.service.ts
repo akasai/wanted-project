@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 @Injectable()
 export class AlarmService {
   sendAlarm(userList: string[], msg: string) {
-    // TODO: Alarm전송 로직: 비동기 2000ms 딜레이
+    // TODO: Alarm전송 로직
     this.sleep(2000).then(() => {
       console.log(`[${userList.join(', ')}]: ${msg} - 2000ms delayed`)
     })

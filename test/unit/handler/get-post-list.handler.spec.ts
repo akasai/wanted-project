@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CommentService } from '../../../src/modules/comment/comment.service'
-import SimplePostModel from '../../../src/modules/post/models/simple-post-model'
+import { SimplePostModel } from '../../../src/modules/post/models'
 import { PostService } from '../../../src/modules/post/post.service'
 import { GetPostListHandler } from '../../../src/modules/post/queries/handlers'
 import { GetPostListQuery } from '../../../src/modules/post/queries/impl'

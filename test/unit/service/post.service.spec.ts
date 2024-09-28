@@ -274,6 +274,7 @@ describe('PostService', () => {
       it('1. 비밀번호가 맞으면 내용을 성공적으로 수정할 수 있다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
@@ -286,7 +287,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          where: { id: 1, status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
           where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
@@ -306,6 +307,7 @@ describe('PostService', () => {
       it('2. 비밀번호가 맞으면 제목을 성공적으로 수정할 수 있다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
@@ -318,7 +320,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          where: { id: 1, status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
           where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
@@ -333,6 +335,7 @@ describe('PostService', () => {
       it('3. 비밀번호가 맞으면 게시물을 성공적으로 수정할 수 있다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
@@ -345,7 +348,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          where: { id: 1, status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
           where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
@@ -367,6 +370,7 @@ describe('PostService', () => {
       it('4. 수정 시 updated_at 필드가 갱신된다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValue(updatedPost)
@@ -379,7 +383,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          where: { id: 1, status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
           where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
@@ -397,7 +401,9 @@ describe('PostService', () => {
       it('1. 비밀번호가 틀리면 게시글 수정에 실패한다.', async () => {
         // given
         const encrypted = await Crypto.plainToHash('password')
-        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({ password_hash: encrypted })
+        prismaService.post.findUnique = jest
+          .fn()
+          .mockResolvedValueOnce({ author_name: '작성자', password_hash: encrypted })
 
         // when
         const result = service.updatePost(1, '작성자', '111', {
@@ -407,7 +413,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledTimes(1)
-        await expect(result).rejects.toThrowError('비밀번호가 틀렸습니다.')
+        await expect(result).rejects.toThrowError('개인정보가 틀렸습니다.')
         await expect(result).rejects.toThrow(BadRequestException)
       })
 
@@ -430,6 +436,7 @@ describe('PostService', () => {
       it('3. 수정할 때 제목, 내용이 없으면 오류가 발생한다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValueOnce(undefined)
@@ -456,6 +463,7 @@ describe('PostService', () => {
       it('1. 비밀번호가 맞으면 게시글을 성공적으로 삭제할 수 있다.', async () => {
         // given
         prismaService.post.findUnique = jest.fn().mockResolvedValue({
+          author_name: '작성자',
           password_hash: await Crypto.plainToHash('password'),
         })
         prismaService.post.update = jest.fn().mockResolvedValue(deletedPost)
@@ -465,7 +473,7 @@ describe('PostService', () => {
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledWith({
-          where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
+          where: { id: 1, status: POST_STATUS.ACTIVE },
         })
         expect(prismaService.post.update).toHaveBeenCalledWith({
           where: { id: 1, author_name: '작성자', status: POST_STATUS.ACTIVE },
@@ -481,14 +489,16 @@ describe('PostService', () => {
       it('1. 비밀번호가 틀리면 게시글 삭제에 실패한다.', async () => {
         // given
         const encrypted = await Crypto.plainToHash('password')
-        prismaService.post.findUnique = jest.fn().mockResolvedValueOnce({ password_hash: encrypted })
+        prismaService.post.findUnique = jest
+          .fn()
+          .mockResolvedValueOnce({ author_name: '작성자', password_hash: encrypted })
 
         // when
         const result = service.softDeletePost(1, '작성자', 'PassWord')
 
         // then
         expect(prismaService.post.findUnique).toHaveBeenCalledTimes(1)
-        await expect(result).rejects.toThrowError('비밀번호가 틀렸습니다.')
+        await expect(result).rejects.toThrowError('개인정보가 틀렸습니다.')
         await expect(result).rejects.toThrow(BadRequestException)
       })
 

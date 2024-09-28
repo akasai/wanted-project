@@ -61,13 +61,13 @@ export class PostService {
     }
 
     const post = await this.prisma.post.findUnique({
-      where: { id: id, author_name: author, status: POST_STATUS.ACTIVE },
+      where: { id: id, status: POST_STATUS.ACTIVE },
     })
     if (!post) {
       throw new NotFoundException('게시글이 존재하지 않습니다.')
     }
-    if (!(await Crypto.isMatchedEncrypted(password, post.password_hash))) {
-      throw new BadRequestException('비밀번호가 틀렸습니다.')
+    if (post.author_name !== author || !(await Crypto.isMatchedEncrypted(password, post.password_hash))) {
+      throw new BadRequestException('개인정보가 틀렸습니다.')
     }
 
     const data: Partial<Post> = Object.entries(editValue).reduce(
@@ -87,13 +87,13 @@ export class PostService {
 
   async softDeletePost(id: number, author: string, password: string): Promise<Post> {
     const post = await this.prisma.post.findUnique({
-      where: { id: id, author_name: author, status: POST_STATUS.ACTIVE },
+      where: { id: id, status: POST_STATUS.ACTIVE },
     })
     if (!post) {
       throw new NotFoundException('게시글이 존재하지 않습니다.')
     }
-    if (!(await Crypto.isMatchedEncrypted(password, post.password_hash))) {
-      throw new BadRequestException('비밀번호가 틀렸습니다.')
+    if (post.author_name !== author || !(await Crypto.isMatchedEncrypted(password, post.password_hash))) {
+      throw new BadRequestException('개인정보가 틀렸습니다.')
     }
 
     return this.prisma.post.update({

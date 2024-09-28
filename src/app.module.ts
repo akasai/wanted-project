@@ -13,7 +13,9 @@ import { PostModule } from './modules/post/post.module'
     {
       provide: 'KEYWORD_CACHE',
       useFactory: async (prisma: PrismaService) => {
-        console.log('Initializing keyword cache...')
+        if (process.env.NODE_ENV !== 'test') {
+          console.log('Initializing keyword cache...')
+        }
         const keywords = await prisma.keyword.findMany({
           select: { keyword: true, author_name: true },
         })
